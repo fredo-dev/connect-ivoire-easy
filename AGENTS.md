@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Payment rows in `transactions` are written only server-side (service role) after Jèko calls; clients have read-only access, so amounts and statuses cannot be forged.
