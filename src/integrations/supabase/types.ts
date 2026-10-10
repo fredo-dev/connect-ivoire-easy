@@ -14,7 +14,134 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string
+          id: string
+          kind: string
+          name: string
+          operator: string
+          price: number
+          validity: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description: string
+          id?: string
+          kind: string
+          name: string
+          operator: string
+          price: number
+          validity: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string
+          id?: string
+          kind?: string
+          name?: string
+          operator?: string
+          price?: number
+          validity?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          operator: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          operator?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          operator?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          fee: number
+          id: string
+          jeko_id: string | null
+          kind: string
+          label: string
+          operator: string
+          payment_method: string
+          phone: string
+          plan_id: string | null
+          reference: string
+          status: string
+          total: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          fee: number
+          id?: string
+          jeko_id?: string | null
+          kind: string
+          label: string
+          operator: string
+          payment_method: string
+          phone: string
+          plan_id?: string | null
+          reference: string
+          status?: string
+          total: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          fee?: number
+          id?: string
+          jeko_id?: string | null
+          kind?: string
+          label?: string
+          operator?: string
+          payment_method?: string
+          phone?: string
+          plan_id?: string | null
+          reference?: string
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
