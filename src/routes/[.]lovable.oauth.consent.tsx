@@ -16,7 +16,7 @@ const oauth = (supabase.auth as unknown as {
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({
-    authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
+    authorization_id: typeof s['authorization_id'] === "string" ? s['authorization_id'] : "",
   }),
   head: () => ({ meta: [{ title: "Autoriser une application — Cabine Online" }, { name: "description", content: "Autorise un assistant à accéder à ton compte." }] }),
   beforeLoad: async ({ search, location }) => {
