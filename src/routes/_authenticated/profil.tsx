@@ -23,7 +23,7 @@ function Profil() {
   const [op, setOp] = useState(data.profile?.operator ?? "orange");
   const [saving, setSaving] = useState(false);
 
-  async function save(e: React.FormEvent) {
+  async function save(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     const p = phone.replace(/\s/g, "");
     if (!/^\+225\d{10}$/.test(p)) return toast.error("Numéro au format +225 suivi de 10 chiffres");
