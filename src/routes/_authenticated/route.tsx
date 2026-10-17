@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Wifi, Smartphone, Receipt, User, LogOut } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { LayoutDashboard, Wifi, Smartphone, Receipt, User, LogOut, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -25,6 +25,11 @@ function Shell() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { user } = Route.useRouteContext();
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin"],
+    queryFn: async () => !!(await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" })).data,
+  });
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
@@ -41,6 +46,11 @@ function Shell() {
               <Icon className="h-4 w-4" />{label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link to="/admin" className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${path === "/admin" ? "bg-accent text-primary" : "text-muted-foreground hover:bg-muted"}`}>
+              <Shield className="h-4 w-4" />Gestion
+            </Link>
+          )}
         </nav>
         <button onClick={signOut} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted">
           <LogOut className="h-4 w-4" />Déconnexion

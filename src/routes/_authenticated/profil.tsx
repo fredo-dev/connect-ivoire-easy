@@ -26,11 +26,11 @@ function Profil() {
   async function save(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     const p = phone.replace(/\s/g, "");
-    if (!/^\+225\d{10}$/.test(p)) return toast.error("Numéro au format +225 suivi de 10 chiffres");
+    if (!/^\+225\d{10}$/.test(p)) { toast.error("Numéro au format +225 suivi de 10 chiffres"); return; }
     setSaving(true);
     const { error } = await supabase.from("profiles").upsert({ id: data.id, full_name: name, phone: p, operator: op, updated_at: new Date().toISOString() });
     setSaving(false);
-    if (error) return toast.error("Enregistrement impossible");
+    if (error) { toast.error("Enregistrement impossible"); return; }
     toast.success("Profil enregistré");
     qc.invalidateQueries({ queryKey: ["profile"] });
   }
