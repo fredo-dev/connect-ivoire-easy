@@ -219,7 +219,7 @@ function Users() {
   if (isLoading) return <p className="text-muted-foreground">Chargement…</p>;
   return (
     <div className="divide-y rounded-2xl border bg-card">
-      {users.map((u) => (
+      {users.map((u: { id: string; email: string; name: string | null; phone: string | null; isAdmin: boolean; createdAt: string }) => (
         <div key={u.id} className="flex items-center justify-between gap-3 p-4 text-sm">
           <div className="min-w-0">
             <p className="font-medium">{u.name || u.email} {u.isAdmin && <span className="ml-1 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">Gérant</span>}</p>
