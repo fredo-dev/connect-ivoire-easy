@@ -79,10 +79,8 @@ export type Database = {
       }
       transactions: {
         Row: {
-          admin_note: string | null
           amount: number
           created_at: string
-          delivered_at: string | null
           fee: number
           id: string
           jeko_id: string | null
@@ -99,10 +97,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          admin_note?: string | null
           amount: number
           created_at?: string
-          delivered_at?: string | null
           fee: number
           id?: string
           jeko_id?: string | null
@@ -119,10 +115,8 @@ export type Database = {
           user_id: string
         }
         Update: {
-          admin_note?: string | null
           amount?: number
           created_at?: string
-          delivered_at?: string | null
           fee?: number
           id?: string
           jeko_id?: string | null
