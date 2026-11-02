@@ -21,7 +21,7 @@ export const adminUpdateTransaction = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const db = await assertAdmin(context.supabase, context.userId);
     const now = new Date().toISOString();
-    const patch: Record<string, unknown> = { updated_at: now };
+    const patch: { updated_at: string; delivered_at?: string | null; status?: string; admin_note?: string } = { updated_at: now };
     if (data.action === "deliver") patch.delivered_at = now;
     if (data.action === "undeliver") patch.delivered_at = null;
     if (data.action === "success") patch.status = "success";
