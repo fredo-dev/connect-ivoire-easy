@@ -1,8 +1,8 @@
 // Sends an SMS through Twilio (via the Lovable connector gateway). Never throws: SMS is best-effort.
 export async function sendSms(to: string, body: string): Promise<{ ok: boolean; error?: string }> {
-  const lovable = process.env.LOVABLE_API_KEY;
-  const twilio = process.env.TWILIO_API_KEY;
-  const from = process.env.TWILIO_SENDER ?? "CabineOnl";
+  const lovable = process.env['LOVABLE_API_KEY'];
+  const twilio = process.env['TWILIO_API_KEY'];
+  const from = process.env['TWILIO_SENDER'] ?? "CabineOnl";
   if (!lovable || !twilio) return { ok: false, error: "SMS non configuré" };
   if (!to.startsWith("+")) to = "+225" + to.replace(/\D/g, "").replace(/^225/, "").slice(-10);
   try {
