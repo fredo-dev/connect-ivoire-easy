@@ -210,6 +210,13 @@ function AuthPage() {
                   )}
                 </button>
               </form>
+              {step === "code" && (mode === "signin" || admin) && (
+                <a href={`https://wa.me/2250596742870?text=${encodeURIComponent(`Bonjour, j'ai oublié mon code secret Cabine Online. Mon numéro : ${phone}`)}`}
+                  target="_blank" rel="noreferrer"
+                  className="mt-4 block text-center text-sm text-primary hover:underline">
+                  Code secret oublié ?
+                </a>
+              )}
               <button onClick={() => {
                 setError(null);
                 if (step === "confirm") { setCode2(""); setStep("code"); }
