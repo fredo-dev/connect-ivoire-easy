@@ -4,6 +4,7 @@ export async function sendSms(to: string, body: string): Promise<{ ok: boolean; 
   const twilio = process.env.TWILIO_API_KEY;
   const from = process.env.TWILIO_SENDER ?? "CabineOnl";
   if (!lovable || !twilio) return { ok: false, error: "SMS non configuré" };
+  if (!to.startsWith("+")) to = "+225" + to.replace(/\D/g, "").replace(/^225/, "").slice(-10);
   try {
     const res = await fetch("https://connector-gateway.lovable.dev/twilio/Messages.json", {
       method: "POST",
