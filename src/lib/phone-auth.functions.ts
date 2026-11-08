@@ -34,5 +34,7 @@ export const registerPhone = createServerFn({ method: "POST" })
     await supabaseAdmin.from("profiles").upsert({
       id: created.user.id, full_name: data.name, phone: data.phone, operator: data.operator,
     });
+    const { sendSms } = await import("./sms.server");
+    await sendSms(data.phone, "Bienvenue sur Cabine Online ! Ton compte est créé. Garde ton code secret pour toi.");
     return { ok: true };
   });
