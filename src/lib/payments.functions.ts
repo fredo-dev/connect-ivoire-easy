@@ -79,6 +79,13 @@ export const refreshPayment = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.from("transactions")
         .update({ status: pr.status, updated_at: new Date().toISOString() }).eq("id", tx.id);
+      const { data: full } = await supabaseAdmin.from("transactions").select("label,total,phone,reference").eq("id", tx.id).single();
+      if (full?.phone) {
+        const { sendSms } = await import("./sms.server");
+        await sendSms(full.phone, pr.status === "success"
+          ? `Cabine Online : paiement de ${full.total} FCFA reçu pour ${full.label}. Réf ${full.reference}. Ton envoi arrive bientôt.`
+          : `Cabine Online : ton paiement pour ${full.label} n'a pas abouti. Réessaie depuis l'application.`);
+      }
     }
     return { status: pr.status };
   });
