@@ -1,4 +1,8 @@
 # Roadmap
+- [ ] Quiz histoire : 20 questions par forfait payé, 10 F par bonne réponse, demandes de versement contrôlées
+- [ ] Thèmes clair et nuit, vidéos de motivation
+- [ ] Lots et concours : classement par souscriptions puis score, configuration et attribution par le gérant
+- [ ] Vérifier les nouveaux parcours et règles
 - [x] Remplacer les forfaits par les vrais forfaits Orange/MTN/Moov
 - [x] Corriger "paiement n'a pas pu être initié" (identifiant boutique Jèko ressaisi)
 - [x] Page de gestion des opérations (gérants via rôle admin)
