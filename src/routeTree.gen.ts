@@ -17,6 +17,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedForfaitsRouteImport } from './routes/_authenticated/forfaits'
+import { Route as AuthenticatedMotivationRouteImport } from './routes/_authenticated/motivation'
 import { Route as AuthenticatedPaiementRouteImport } from './routes/_authenticated/paiement'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedQuizRouteImport } from './routes/_authenticated/quiz'
@@ -64,6 +65,11 @@ const AuthenticatedForfaitsRoute = AuthenticatedForfaitsRouteImport.update({
   path: '/forfaits',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMotivationRoute = AuthenticatedMotivationRouteImport.update({
+  id: '/motivation',
+  path: '/motivation',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPaiementRoute = AuthenticatedPaiementRouteImport.update({
   id: '/paiement',
   path: '/paiement',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/forfaits': typeof AuthenticatedForfaitsRoute
+  '/motivation': typeof AuthenticatedMotivationRoute
   '/paiement': typeof AuthenticatedPaiementRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/quiz': typeof AuthenticatedQuizRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/forfaits': typeof AuthenticatedForfaitsRoute
+  '/motivation': typeof AuthenticatedMotivationRoute
   '/paiement': typeof AuthenticatedPaiementRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/quiz': typeof AuthenticatedQuizRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/forfaits': typeof AuthenticatedForfaitsRoute
+  '/_authenticated/motivation': typeof AuthenticatedMotivationRoute
   '/_authenticated/paiement': typeof AuthenticatedPaiementRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/quiz': typeof AuthenticatedQuizRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/forfaits'
+    | '/motivation'
     | '/paiement'
     | '/profil'
     | '/quiz'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/forfaits'
+    | '/motivation'
     | '/paiement'
     | '/profil'
     | '/quiz'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/forfaits'
+    | '/_authenticated/motivation'
     | '/_authenticated/paiement'
     | '/_authenticated/profil'
     | '/_authenticated/quiz'
@@ -259,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedForfaitsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/motivation': {
+      id: '/_authenticated/motivation'
+      path: '/motivation'
+      fullPath: '/motivation'
+      preLoaderRoute: typeof AuthenticatedMotivationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/paiement': {
       id: '/_authenticated/paiement'
       path: '/paiement'
@@ -308,6 +327,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedForfaitsRoute: typeof AuthenticatedForfaitsRoute
+  AuthenticatedMotivationRoute: typeof AuthenticatedMotivationRoute
   AuthenticatedPaiementRoute: typeof AuthenticatedPaiementRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedQuizRoute: typeof AuthenticatedQuizRoute
@@ -319,6 +339,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedForfaitsRoute: AuthenticatedForfaitsRoute,
+  AuthenticatedMotivationRoute: AuthenticatedMotivationRoute,
   AuthenticatedPaiementRoute: AuthenticatedPaiementRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedQuizRoute: AuthenticatedQuizRoute,
