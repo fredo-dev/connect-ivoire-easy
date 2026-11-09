@@ -22,6 +22,13 @@
       "when": 1794250780049,
       "tag": "0002_quiz_rewards_and_prizes",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794250906231,
+      "tag": "0003_quiz_grand_prize_award",
+      "breakpoints": true
     }
   ]
 }

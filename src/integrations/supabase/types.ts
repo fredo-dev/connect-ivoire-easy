@@ -294,6 +294,7 @@ export type Database = {
         }
         Returns: Json
       }
+      quiz_award: { Args: { p_prize: string }; Returns: string }
       quiz_start: {
         Args: { p_questions: Json; p_transaction: string; p_user: string }
         Returns: string
