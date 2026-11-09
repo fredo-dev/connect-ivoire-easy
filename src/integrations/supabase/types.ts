@@ -77,6 +77,113 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_prizes: {
+        Row: {
+          active: boolean
+          awarded_at: string | null
+          created_at: string
+          description: string
+          ends_at: string
+          id: string
+          starts_at: string
+          title: string
+          winner_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          awarded_at?: string | null
+          created_at?: string
+          description?: string
+          ends_at: string
+          id?: string
+          starts_at: string
+          title: string
+          winner_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          awarded_at?: string | null
+          created_at?: string
+          description?: string
+          ends_at?: string
+          id?: string
+          starts_at?: string
+          title?: string
+          winner_id?: string | null
+        }
+        Relationships: []
+      }
+      quiz_sessions: {
+        Row: {
+          answers: Json
+          created_at: string
+          earned: number
+          id: string
+          questions: Json
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          earned?: number
+          id?: string
+          questions: Json
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          earned?: number
+          id?: string
+          questions?: Json
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_sessions_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          operator: string
+          payment_reference: string | null
+          phone: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          operator: string
+          payment_reference?: string | null
+          phone: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          operator?: string
+          payment_reference?: string | null
+          phone?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           admin_note: string | null
@@ -177,6 +284,24 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      quiz_answer: {
+        Args: {
+          p_choice: number
+          p_index: number
+          p_session: string
+          p_user: string
+        }
+        Returns: Json
+      }
+      quiz_award: { Args: { p_prize: string }; Returns: string }
+      quiz_start: {
+        Args: { p_questions: Json; p_transaction: string; p_user: string }
+        Returns: string
+      }
+      quiz_withdraw: {
+        Args: { p_operator: string; p_phone: string; p_user: string }
+        Returns: string
       }
     }
     Enums: {

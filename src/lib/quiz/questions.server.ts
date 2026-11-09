@@ -1,0 +1,47 @@
+// Answers are never imported by the browser; persisted private session questions are authoritative.
+const bank: [string,string,string[],number,string][] = [
+['Côte d’Ivoire','À quelle date la Côte d’Ivoire devient-elle indépendante ?',['7 août 1960','1 janvier 1958','6 mars 1957','14 juillet 1961'],0,'L’indépendance a été proclamée le 7 août 1960.'],
+['Côte d’Ivoire','Qui fut le premier président ivoirien ?',['Laurent Gbagbo','Félix Houphouët-Boigny','Henri Konan Bédié','Alassane Ouattara'],1,'Félix Houphouët-Boigny a dirigé le pays de 1960 à 1993.'],
+['Côte d’Ivoire','Quelle ville devient la capitale politique en 1983 ?',['Bouaké','Abidjan','Yamoussoukro','Korhogo'],2,'Yamoussoukro devient capitale politique en mars 1983.'],
+['Côte d’Ivoire','En quelle année Houphouët-Boigny est-il décédé ?',['1980','1990','2000','1993'],3,'Il est décédé le 7 décembre 1993.'],
+['Côte d’Ivoire','Quel pays colonisa la Côte d’Ivoire ?',['France','Portugal','Belgique','Italie'],0,'La Côte d’Ivoire fut une colonie française.'],
+['Côte d’Ivoire','En quelle année la colonie de Côte d’Ivoire fut-elle créée ?',['1960','1893','1914','1848'],1,'La colonie a été créée en 1893.'],
+['Côte d’Ivoire','Qui succède à Houphouët-Boigny en 1993 ?',['Robert Guéï','Laurent Gbagbo','Henri Konan Bédié','Didier Drogba'],2,'Henri Konan Bédié devient président en décembre 1993.'],
+['Côte d’Ivoire','En quelle année a lieu le premier coup d’État ivoirien ?',['1960','1983','2010','1999'],3,'Le coup d’État du 24 décembre 1999 porte Robert Guéï au pouvoir.'],
+['Côte d’Ivoire','Quelle est la première capitale coloniale de Côte d’Ivoire ?',['Grand-Bassam','Daloa','Man','Bouaké'],0,'Grand-Bassam fut capitale de 1893 à 1896.'],
+['Côte d’Ivoire','Quelle ville remplace Grand-Bassam comme capitale en 1896 ?',['Abidjan','Bingerville','Yamoussoukro','San-Pédro'],1,'Bingerville fut capitale de 1896 à 1934.'],
+['Côte d’Ivoire','En quelle année Abidjan devient-elle capitale coloniale ?',['1960','1893','1934','1983'],2,'Abidjan devient capitale en 1934.'],
+['Côte d’Ivoire','Quel est le nom de l’hymne national ?',['La Marseillaise','La Concorde','L’Aube nouvelle','L’Abidjanaise'],3,'L’Abidjanaise est l’hymne national de la Côte d’Ivoire.'],
+['Côte d’Ivoire','Quelle reine est associée à l’histoire du peuple baoulé ?',['Abla Pokou','Cléopâtre','Victoria','Nzinga'],0,'Abla Pokou est une figure fondatrice de l’histoire baoulé.'],
+['Côte d’Ivoire','Quel parti Houphouët-Boigny fonde-t-il en 1946 ?',['FPI','PDCI','ANC','RDR'],1,'Le PDCI est fondé en avril 1946.'],
+['Côte d’Ivoire','En quelle année le multipartisme est-il rétabli ?',['1960','1983','1990','2002'],2,'Le multipartisme est rétabli en 1990.'],
+['Côte d’Ivoire','Quand débute la crise politico-militaire des années 2000 ?',['1990','1983','2015','2002'],3,'La crise débute en septembre 2002.'],
+['Côte d’Ivoire','Quelle ville historique est inscrite à l’UNESCO en 2012 ?',['Grand-Bassam','Daloa','Gagnoa','Abengourou'],0,'La ville historique de Grand-Bassam est inscrite en 2012.'],
+['Côte d’Ivoire','Quel général prend le pouvoir en décembre 1999 ?',['Thomas Sankara','Robert Guéï','Charles de Gaulle','Samory Touré'],1,'Robert Guéï prend la tête du pays après le coup d’État.'],
+['Côte d’Ivoire','Quelle basilique est consacrée en 1990 ?',['Saint-Pierre de Rome','Notre-Dame de Paris','Notre-Dame de la Paix','Saint-Marc'],2,'La basilique Notre-Dame de la Paix de Yamoussoukro est consacrée en 1990.'],
+['Côte d’Ivoire','Quelle compétition la Côte d’Ivoire remporte-t-elle en 1992 ?',['Coupe du monde','Euro','Copa América','Coupe d’Afrique des nations'],3,'Les Éléphants remportent leur première CAN en 1992.'],
+['Monde','En quelle année débute la Première Guerre mondiale ?',['1914','1939','1815','1945'],0,'La Première Guerre mondiale commence en 1914.'],
+['Monde','En quelle année se termine la Seconde Guerre mondiale ?',['1918','1945','1939','1960'],1,'La Seconde Guerre mondiale se termine en 1945.'],
+['Monde','En quelle année est fondée l’ONU ?',['1920','1963','1945','1991'],2,'L’Organisation des Nations unies est créée en 1945.'],
+['Monde','Qui devient président sud-africain en 1994 ?',['Kwame Nkrumah','Patrice Lumumba','Jomo Kenyatta','Nelson Mandela'],3,'Nelson Mandela est élu après les premières élections multiraciales.'],
+['Monde','En quelle année le mur de Berlin tombe-t-il ?',['1989','1999','1945','1961'],0,'La chute du mur a lieu le 9 novembre 1989.'],
+['Monde','Quel pays africain devient indépendant en 1957 sous Nkrumah ?',['Kenya','Ghana','Nigeria','Angola'],1,'Le Ghana accède à l’indépendance le 6 mars 1957.'],
+['Monde','Quel événement commence en France en 1789 ?',['La Renaissance','La guerre de Cent Ans','La Révolution française','La Commune'],2,'La Révolution française débute en 1789.'],
+['Monde','Qui est le premier homme à marcher sur la Lune ?',['Youri Gagarine','Buzz Aldrin','John Glenn','Neil Armstrong'],3,'Neil Armstrong marche sur la Lune en juillet 1969.'],
+['Monde','Quelle civilisation bâtit les pyramides de Gizeh ?',['Les Égyptiens','Les Romains','Les Incas','Les Vikings'],0,'Les pyramides de Gizeh sont des monuments de l’Égypte ancienne.'],
+['Monde','Qui est le premier président des États-Unis ?',['Abraham Lincoln','George Washington','Thomas Jefferson','John Kennedy'],1,'George Washington devient président en 1789.'],
+['Monde','Quel empire avait Rome pour capitale ?',['Ottoman','Mongol','Romain','Aztèque'],2,'Rome est au centre de l’Empire romain.'],
+['Monde','Quelle année marque le début de la Seconde Guerre mondiale ?',['1914','1945','1929','1939'],3,'L’invasion de la Pologne en septembre 1939 marque le début de la guerre.'],
+['Monde','Quel dirigeant est associé à l’indépendance non violente de l’Inde ?',['Mahatma Gandhi','Napoléon','Bismarck','Churchill'],0,'Gandhi est une figure majeure de la lutte non violente pour l’indépendance.'],
+['Monde','En quelle année l’Inde devient-elle indépendante ?',['1960','1947','1914','1994'],1,'L’Inde devient indépendante le 15 août 1947.'],
+['Monde','Quel pays abrite le site du Machu Picchu ?',['Mexique','Chili','Pérou','Égypte'],2,'Le Machu Picchu est un site inca au Pérou.'],
+['Monde','Quelle ville accueille les premiers Jeux olympiques modernes en 1896 ?',['Paris','Londres','Rome','Athènes'],3,'Les premiers Jeux modernes ont lieu à Athènes.'],
+['Monde','Quel navigateur atteint les Amériques en 1492 ?',['Christophe Colomb','James Cook','Vasco de Gama','Magellan'],0,'Colomb atteint les Caraïbes en 1492, où vivaient déjà des populations autochtones.'],
+['Monde','Quel pays devient indépendant en 1804 après une révolution d’esclaves ?',['Cuba','Haïti','Brésil','Canada'],1,'Haïti proclame son indépendance le 1 janvier 1804.'],
+['Monde','Qui fonde l’Empire du Mali au XIIIe siècle ?',['Chaka','Samory Touré','Soundiata Keïta','Mansa Moussa'],2,'Soundiata Keïta est le fondateur de l’Empire du Mali.'],
+['Monde','En quelle année est créée l’Organisation de l’unité africaine ?',['1945','2002','1957','1963'],3,'L’OUA est fondée le 25 mai 1963 à Addis-Abeba.']
+];
+export function makeQuestions() {
+ const shuffled = bank.map(x=>({x,random:crypto.getRandomValues(new Uint32Array(1))[0] ?? 0})).sort((a,b)=>a.random-b.random);
+ return shuffled.slice(0,20).map(({x})=>({category:x[0],prompt:x[1],options:x[2],correct:x[3],explanation:x[4]}));
+}

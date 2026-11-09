@@ -1,0 +1,21 @@
+import {useState} from 'react';
+import {useServerFn} from '@tanstack/react-start';
+import {useQuery,useQueryClient} from '@tanstack/react-query';
+import {toast} from 'sonner';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Label} from '@/components/ui/label';
+import {getQuizAdmin,manageQuiz} from '@/lib/quiz.functions';
+import {formatXOF} from '@/lib/fees';
+export function QuizAdmin(){
+ const {data,error}=useQuery({queryKey:['quiz-admin'],queryFn:()=>getQuizAdmin()});const manage=useServerFn(manageQuiz),qc=useQueryClient();
+ const [busy,setBusy]=useState(false),[title,setTitle]=useState(''),[description,setDescription]=useState(''),[starts,setStarts]=useState(''),[ends,setEnds]=useState('');
+ const [references,setReferences]=useState<Record<string,string>>({});
+ async function act(work:()=>Promise<unknown>){setBusy(true);try{await work();await qc.invalidateQueries({queryKey:['quiz-admin']});toast.success('Enregistré');}catch(e){toast.error(e instanceof Error?e.message:'Action impossible');}finally{setBusy(false);}}
+ return <section className="space-y-5 border-t pt-6"><h2 className="text-xl font-bold">Quiz, versements & lots</h2>{error&&<p role="alert">Chargement impossible.</p>}
+ <h3 className="font-semibold">Demandes de versement</h3><p className="text-sm text-muted-foreground">Effectuez le transfert Mobile Money avant de confirmer le versement. La référence est obligatoire.</p>
+ {data?.withdrawals.length?data.withdrawals.map(w=><div key={w.id} className="space-y-3 rounded-lg border bg-card p-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-semibold">{formatXOF(w.amount)} · {w.phone} · {w.operator}</p><p className="text-sm text-muted-foreground">{w.status==='pending'?'En attente':w.status==='paid'?'Versé':'Refusé'}</p></div>{w.status==='pending'&&<><Label htmlFor={`ref-${w.id}`}>Référence du transfert / motif de refus</Label><Input id={`ref-${w.id}`} value={references[w.id]??''} onChange={e=>setReferences({...references,[w.id]:e.target.value})}/><div className="flex flex-wrap gap-2"><Button disabled={busy||!references[w.id]?.trim()} onClick={()=>act(()=>manage({data:{action:'withdrawal',id:w.id,status:'paid',reference:references[w.id]??''}}))}>Confirmer le versement</Button><Button variant="outline" disabled={busy||!references[w.id]?.trim()} onClick={()=>act(()=>manage({data:{action:'withdrawal',id:w.id,status:'rejected',reference:references[w.id]??''}}))}>Refuser</Button></div></>}</div>):<p className="text-sm text-muted-foreground">Aucune demande.</p>}
+ <h3 className="font-semibold">Annoncer un grand lot</h3><form className="grid gap-3" onSubmit={e=>{e.preventDefault();void act(async()=>{await manage({data:{action:'prize',title,description,starts:new Date(starts).toISOString(),ends:new Date(ends).toISOString()}});setTitle('');setDescription('');});}}><Label htmlFor="lot-title">Lot confirmé</Label><Input id="lot-title" value={title} onChange={e=>setTitle(e.target.value)} required placeholder="Billet de concert, artiste et événement"/><Label htmlFor="lot-description">Détails et conditions</Label><Input id="lot-description" value={description} onChange={e=>setDescription(e.target.value)} required/><div className="grid gap-3 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="lot-start">Début du concours</Label><Input id="lot-start" type="datetime-local" value={starts} onChange={e=>setStarts(e.target.value)} required/></div><div className="space-y-2"><Label htmlFor="lot-end">Fin du concours</Label><Input id="lot-end" type="datetime-local" value={ends} onChange={e=>setEnds(e.target.value)} required/></div></div><Button type="submit" disabled={busy}>Publier le lot</Button></form>
+ {data?.prizes.map(p=><div key={p.id} className="space-y-2 border-b py-4"><p className="font-semibold">{p.title}</p><p className="text-sm text-muted-foreground">Fin : {new Date(p.ends_at).toLocaleString('fr-FR')}</p>{p.winner_id?<p className="break-all text-sm">Gagnant : {p.winner_id}</p>:<Button variant="outline" disabled={busy||new Date(p.ends_at)>=new Date()} onClick={()=>act(()=>manage({data:{action:'award',id:p.id}}))}>Attribuer au premier du classement</Button>}</div>)}
+ </section>;
+}
