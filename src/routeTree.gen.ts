@@ -19,6 +19,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedForfaitsRouteImport } from './routes/_authenticated/forfaits'
 import { Route as AuthenticatedPaiementRouteImport } from './routes/_authenticated/paiement'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
+import { Route as AuthenticatedQuizRouteImport } from './routes/_authenticated/quiz'
 import { Route as AuthenticatedRechargeRouteImport } from './routes/_authenticated/recharge'
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -73,6 +74,11 @@ const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedQuizRoute = AuthenticatedQuizRouteImport.update({
+  id: '/quiz',
+  path: '/quiz',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRechargeRoute = AuthenticatedRechargeRouteImport.update({
   id: '/recharge',
   path: '/recharge',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/forfaits': typeof AuthenticatedForfaitsRoute
   '/paiement': typeof AuthenticatedPaiementRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/quiz': typeof AuthenticatedQuizRoute
   '/recharge': typeof AuthenticatedRechargeRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/forfaits': typeof AuthenticatedForfaitsRoute
   '/paiement': typeof AuthenticatedPaiementRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/quiz': typeof AuthenticatedQuizRoute
   '/recharge': typeof AuthenticatedRechargeRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/_authenticated/forfaits': typeof AuthenticatedForfaitsRoute
   '/_authenticated/paiement': typeof AuthenticatedPaiementRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
+  '/_authenticated/quiz': typeof AuthenticatedQuizRoute
   '/_authenticated/recharge': typeof AuthenticatedRechargeRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/forfaits'
     | '/paiement'
     | '/profil'
+    | '/quiz'
     | '/recharge'
     | '/transactions'
     | '/.lovable/oauth/consent'
@@ -160,6 +170,7 @@ export interface FileRouteTypes {
     | '/forfaits'
     | '/paiement'
     | '/profil'
+    | '/quiz'
     | '/recharge'
     | '/transactions'
     | '/.lovable/oauth/consent'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/_authenticated/forfaits'
     | '/_authenticated/paiement'
     | '/_authenticated/profil'
+    | '/_authenticated/quiz'
     | '/_authenticated/recharge'
     | '/_authenticated/transactions'
     | '/.lovable/oauth/consent'
@@ -261,6 +273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/quiz': {
+      id: '/_authenticated/quiz'
+      path: '/quiz'
+      fullPath: '/quiz'
+      preLoaderRoute: typeof AuthenticatedQuizRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/recharge': {
       id: '/_authenticated/recharge'
       path: '/recharge'
@@ -291,6 +310,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedForfaitsRoute: typeof AuthenticatedForfaitsRoute
   AuthenticatedPaiementRoute: typeof AuthenticatedPaiementRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
+  AuthenticatedQuizRoute: typeof AuthenticatedQuizRoute
   AuthenticatedRechargeRoute: typeof AuthenticatedRechargeRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
 }
@@ -301,6 +321,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedForfaitsRoute: AuthenticatedForfaitsRoute,
   AuthenticatedPaiementRoute: AuthenticatedPaiementRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
+  AuthenticatedQuizRoute: AuthenticatedQuizRoute,
   AuthenticatedRechargeRoute: AuthenticatedRechargeRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,
 }
