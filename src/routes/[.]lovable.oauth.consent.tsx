@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { pageMeta } from "@/lib/page-meta";
 
 type Details = { client?: { name?: string; redirect_uri?: string }; scope?: string; redirect_url?: string; redirect_to?: string } | null;
 type Res = { data: Details; error: { message: string } | null };
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
   validateSearch: (s: Record<string, unknown>) => ({
     authorization_id: typeof s['authorization_id'] === "string" ? s['authorization_id'] : "",
   }),
-  head: () => ({ meta: [{ title: "Autoriser une application — Cabine Online" }, { name: "description", content: "Autorise un assistant à accéder à ton compte." }] }),
+  head: () => pageMeta("Autoriser une application — Cabine Online", "Autorise un assistant à accéder à ton compte Cabine Online."),
   beforeLoad: async ({ search, location }) => {
     if (!search.authorization_id) throw new Error("Demande d'autorisation invalide (identifiant manquant).");
     const { data } = await supabase.auth.getSession();

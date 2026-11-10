@@ -8,9 +8,10 @@ import { OPERATORS } from "@/lib/fees";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/profil")({
-  head: () => ({ meta: [{ title: "Profil — Cabine Online" }, { name: "description", content: "Gère ton profil." }] }),
+  head: () => pageMeta("Profil — Cabine Online", "Gère ton nom, ton numéro de téléphone et ton opérateur."),
   loader: ({ context }) => context.queryClient.ensureQueryData(profileQuery),
   component: Profil,
 });

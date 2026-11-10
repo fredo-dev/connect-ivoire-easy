@@ -4,9 +4,10 @@ import { Wifi, Smartphone, ArrowRight, Brain } from "lucide-react";
 import { profileQuery, transactionsQuery } from "@/lib/queries";
 import { formatXOF, operatorLabel } from "@/lib/fees";
 import { StatusBadge } from "@/components/StatusBadge";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Tableau de bord — Cabine Online" }, { name: "description", content: "Vue d'ensemble de ton compte." }] }),
+  head: () => pageMeta("Tableau de bord — Cabine Online", "Vue d'ensemble de ton compte, de tes forfaits et de tes opérations."),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(profileQuery),
     context.queryClient.ensureQueryData(transactionsQuery),

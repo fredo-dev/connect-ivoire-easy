@@ -6,10 +6,11 @@ import { z } from "zod";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { refreshPayment } from "@/lib/payments.functions";
 import { Button } from "@/components/ui/button";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/paiement")({
   validateSearch: z.object({ tx: z.string().uuid() }),
-  head: () => ({ meta: [{ title: "Statut du paiement — Cabine Online" }, { name: "description", content: "Vérification de ton paiement." }] }),
+  head: () => pageMeta("Statut du paiement — Cabine Online", "Vérification du statut de ton paiement Mobile Money."),
   component: Paiement,
 });
 
