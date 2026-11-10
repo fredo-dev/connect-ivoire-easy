@@ -4,9 +4,11 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/StatusBadge";
 import { formatXOF, operatorLabel } from "@/lib/fees";
+import { QuizAdmin } from "@/components/QuizAdmin";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Gestion des opérations — Cabine Online" }, { name: "description", content: "Suivi de toutes les opérations Jèko." }] }),
+  head: () => pageMeta("Gestion des opérations — Cabine Online", "Suivi des opérations, des versements du quiz et des lots par le gérant."),
   component: Admin,
 });
 
@@ -70,6 +72,7 @@ function Admin() {
           ))}
         </div>
       )}
+      <QuizAdmin />
     </div>
   );
 }
