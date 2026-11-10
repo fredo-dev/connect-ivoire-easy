@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PayButton } from "@/components/PayButton";
 import { OPERATORS, type OperatorId } from "@/lib/fees";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/recharge")({
-  head: () => ({ meta: [{ title: "Recharge de crédit — Cabine Online" }, { name: "description", content: "Recharge ton crédit téléphonique." }] }),
+  head: () => pageMeta("Recharge de crédit — Cabine Online", "Recharge ton crédit téléphonique Orange, MTN ou Moov."),
   component: Recharge,
 });
 

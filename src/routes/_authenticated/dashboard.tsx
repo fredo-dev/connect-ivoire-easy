@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Wifi, Smartphone, ArrowRight } from "lucide-react";
+import { Wifi, Smartphone, ArrowRight, Brain } from "lucide-react";
 import { profileQuery, transactionsQuery } from "@/lib/queries";
 import { formatXOF, operatorLabel } from "@/lib/fees";
 import { StatusBadge } from "@/components/StatusBadge";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Tableau de bord — Cabine Online" }, { name: "description", content: "Vue d'ensemble de ton compte." }] }),
+  head: () => pageMeta("Tableau de bord — Cabine Online", "Vue d'ensemble de ton compte, de tes forfaits et de tes opérations."),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(profileQuery),
     context.queryClient.ensureQueryData(transactionsQuery),
@@ -42,12 +43,15 @@ function Dashboard() {
           <div><p className="opacity-80">Opérateur</p><p className="font-semibold">{me.profile?.operator ? operatorLabel(me.profile.operator) : "—"}</p></div>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Link to="/forfaits" className="rounded-2xl border bg-card p-5 hover:border-primary/50">
           <Wifi className="h-6 w-6 text-primary" /><p className="mt-3 font-semibold">Acheter un forfait</p>
         </Link>
         <Link to="/recharge" className="rounded-2xl border bg-card p-5 hover:border-primary/50">
           <Smartphone className="h-6 w-6 text-primary" /><p className="mt-3 font-semibold">Recharger du crédit</p>
+        </Link>
+        <Link to="/quiz" className="col-span-2 rounded-2xl border bg-card p-5 hover:border-primary/50 sm:col-span-1">
+          <Brain className="h-6 w-6 text-primary" /><p className="mt-3 font-semibold">Jouer au quiz</p>
         </Link>
       </div>
       <div>

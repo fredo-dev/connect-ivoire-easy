@@ -5,9 +5,10 @@ import { plansQuery } from "@/lib/queries";
 import { formatXOF, OPERATORS, operatorLabel, type OperatorId } from "@/lib/fees";
 import { PayButton } from "@/components/PayButton";
 import { Button } from "@/components/ui/button";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/forfaits")({
-  head: () => ({ meta: [{ title: "Forfaits — Cabine Online" }, { name: "description", content: "Forfaits internet, appels et mixtes." }] }),
+  head: () => pageMeta("Forfaits — Cabine Online", "Forfaits internet, appels et mixtes Orange, MTN et Moov."),
   loader: ({ context }) => context.queryClient.ensureQueryData(plansQuery),
   component: Forfaits,
 });

@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -100,9 +100,9 @@ function RootComponent() {
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <Outlet />
       <Toaster richColors position="top-center" />
-    </QueryClientProvider>
+    </>
   );
 }

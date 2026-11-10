@@ -41,7 +41,11 @@ const bank: [string,string,string[],number,string][] = [
 ['Monde','Qui fonde l’Empire du Mali au XIIIe siècle ?',['Chaka','Samory Touré','Soundiata Keïta','Mansa Moussa'],2,'Soundiata Keïta est le fondateur de l’Empire du Mali.'],
 ['Monde','En quelle année est créée l’Organisation de l’unité africaine ?',['1945','2002','1957','1963'],3,'L’OUA est fondée le 25 mai 1963 à Addis-Abeba.']
 ];
+function shuffle<T>(items:T[]) {
+ return items.map(x=>({x,random:crypto.getRandomValues(new Uint32Array(1))[0] ?? 0})).sort((a,b)=>a.random-b.random).map(({x})=>x);
+}
 export function makeQuestions() {
- const shuffled = bank.map(x=>({x,random:crypto.getRandomValues(new Uint32Array(1))[0] ?? 0})).sort((a,b)=>a.random-b.random);
- return shuffled.slice(0,20).map(({x})=>({category:x[0],prompt:x[1],options:x[2],correct:x[3],explanation:x[4]}));
+ const ivorian=shuffle(bank.filter(x=>x[0]==='Côte d’Ivoire')).slice(0,10);
+ const world=shuffle(bank.filter(x=>x[0]==='Monde')).slice(0,10);
+ return shuffle([...ivorian,...world]).map(x=>({category:x[0],prompt:x[1],options:x[2],correct:x[3],explanation:x[4]}));
 }

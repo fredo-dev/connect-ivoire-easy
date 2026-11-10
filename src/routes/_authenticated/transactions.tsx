@@ -3,9 +3,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { transactionsQuery } from "@/lib/queries";
 import { formatXOF, operatorLabel } from "@/lib/fees";
 import { StatusBadge } from "@/components/StatusBadge";
+import { pageMeta } from "@/lib/page-meta";
 
 export const Route = createFileRoute("/_authenticated/transactions")({
-  head: () => ({ meta: [{ title: "Historique — Cabine Online" }, { name: "description", content: "Historique de tes paiements." }] }),
+  head: () => pageMeta("Historique — Cabine Online", "Historique de tes paiements, forfaits et recharges."),
   loader: ({ context }) => context.queryClient.ensureQueryData(transactionsQuery),
   component: Transactions,
 });
