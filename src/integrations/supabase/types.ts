@@ -118,7 +118,10 @@ export type Database = {
           answers: Json
           created_at: string
           earned: number
+          finish_reason: string | null
+          finished_at: string | null
           id: string
+          question_deadline: string | null
           questions: Json
           transaction_id: string
           user_id: string
@@ -127,7 +130,10 @@ export type Database = {
           answers?: Json
           created_at?: string
           earned?: number
+          finish_reason?: string | null
+          finished_at?: string | null
           id?: string
+          question_deadline?: string | null
           questions: Json
           transaction_id: string
           user_id: string
@@ -136,7 +142,10 @@ export type Database = {
           answers?: Json
           created_at?: string
           earned?: number
+          finish_reason?: string | null
+          finished_at?: string | null
           id?: string
+          question_deadline?: string | null
           questions?: Json
           transaction_id?: string
           user_id?: string
@@ -295,6 +304,11 @@ export type Database = {
         Returns: Json
       }
       quiz_award: { Args: { p_prize: string }; Returns: string }
+      quiz_expire: { Args: { p_user: string }; Returns: undefined }
+      quiz_next: {
+        Args: { p_session: string; p_user: string }
+        Returns: undefined
+      }
       quiz_start: {
         Args: { p_questions: Json; p_transaction: string; p_user: string }
         Returns: string
