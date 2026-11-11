@@ -1,17 +1,20 @@
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { rankPlayers } from './quiz/rules';
+import { quizSessionStatus,rankPlayers,type QuizSessionStatus } from './quiz/rules';
 export type QuizQuestion = {category:string; prompt:string; options:string[]};
-export type QuizSession = {id:string;transaction_id:string; answered:number;earned:number; question:QuizQuestion|null};
-function safeSession(s: {id:string;transaction_id:string;questions:unknown;answers:unknown;earned:number}): QuizSession {
+export type QuizSession = {id:string;transaction_id:string;answered:number;earned:number;question:QuizQuestion|null;deadline:string|null;status:QuizSessionStatus};
+export type QuizAnswerResult = {correct:boolean;correctChoice:number;explanation:string;reward:number;expired:boolean};
+function safeSession(s: {id:string;transaction_id:string;questions:unknown;answers:unknown;earned:number;question_deadline:string|null;finish_reason:string|null}): QuizSession {
  const questions=s.questions as QuizQuestion[]; const answers=s.answers as unknown[];
- const q=questions[answers.length];
- return {id:s.id,transaction_id:s.transaction_id,answered:answers.length,earned:s.earned,question:q?{category:q.category,prompt:q.prompt,options:q.options}:null};
+ const status=quizSessionStatus({answered:answers.length,deadline:s.question_deadline,finishReason:s.finish_reason});
+ const q=status==='playing'?questions[answers.length]:null;
+ return {id:s.id,transaction_id:s.transaction_id,answered:answers.length,earned:s.earned,question:q?{category:q.category,prompt:q.prompt,options:q.options}:null,deadline:s.question_deadline,status};
 }
 export const getQuiz = createServerFn({method:'GET'}).middleware([requireSupabaseAuth]).handler(async({context})=>{
  // Privileged reads are needed for private answer keys; only safe projections leave this handler.
  const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');
+ const expired=await db.rpc('quiz_expire',{p_user:context.userId});if(expired.error)throw new Error('Actualisation du chronomètre impossible');
  const [ss,ts,ws,ps] = await Promise.all([
  db.from('quiz_sessions').select('*').eq('user_id',context.userId).order('created_at'),
  context.supabase.from('transactions').select('id,label,created_at').eq('kind','forfait').eq('status','success').order('created_at'),
@@ -28,7 +31,11 @@ export const startQuiz=createServerFn({method:'POST'}).middleware([requireSupaba
 export const answerQuiz=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({sessionId:z.string().uuid(),index:z.number().int().min(0).max(19),choice:z.number().int().min(0).max(3)})).handler(async({data,context})=>{
  const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');
  const r=await db.rpc('quiz_answer',{p_user:context.userId,p_session:data.sessionId,p_index:data.index,p_choice:data.choice});if(r.error)throw new Error(r.error.message);
- return r.data as {correct:boolean;correctChoice:number;explanation:string;reward:number};
+ return r.data as QuizAnswerResult;
+});
+export const nextQuiz=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({sessionId:z.string().uuid()})).handler(async({data,context})=>{
+ const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server');
+ const r=await db.rpc('quiz_next',{p_user:context.userId,p_session:data.sessionId});if(r.error)throw new Error(r.error.message);return {ok:true};
 });
 export const withdrawQuiz=createServerFn({method:'POST'}).middleware([requireSupabaseAuth]).inputValidator(z.object({phone:z.string().regex(/^\+225\d{10}$/),operator:z.enum(['orange','mtn','moov','wave'])})).handler(async({data,context})=>{
  const {supabaseAdmin:db}=await import('@/integrations/supabase/client.server'); const r=await db.rpc('quiz_withdraw',{p_user:context.userId,p_phone:data.phone,p_operator:data.operator}); if(r.error)throw new Error(r.error.message);return r.data;

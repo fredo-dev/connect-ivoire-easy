@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCabinisteRouteImport } from './routes/_authenticated/cabiniste'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedForfaitsRouteImport } from './routes/_authenticated/forfaits'
 import { Route as AuthenticatedMotivationRouteImport } from './routes/_authenticated/motivation'
@@ -53,6 +54,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCabinisteRoute = AuthenticatedCabinisteRouteImport.update({
+  id: '/cabiniste',
+  path: '/cabiniste',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/cabiniste': typeof AuthenticatedCabinisteRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/forfaits': typeof AuthenticatedForfaitsRoute
   '/motivation': typeof AuthenticatedMotivationRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/cabiniste': typeof AuthenticatedCabinisteRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/forfaits': typeof AuthenticatedForfaitsRoute
   '/motivation': typeof AuthenticatedMotivationRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/cabiniste': typeof AuthenticatedCabinisteRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/forfaits': typeof AuthenticatedForfaitsRoute
   '/_authenticated/motivation': typeof AuthenticatedMotivationRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/cabiniste'
     | '/dashboard'
     | '/forfaits'
     | '/motivation'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.well-known/oauth-protected-resource'
     | '/admin'
+    | '/cabiniste'
     | '/dashboard'
     | '/forfaits'
     | '/motivation'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
+    | '/_authenticated/cabiniste'
     | '/_authenticated/dashboard'
     | '/_authenticated/forfaits'
     | '/_authenticated/motivation'
@@ -255,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cabiniste': {
+      id: '/_authenticated/cabiniste'
+      path: '/cabiniste'
+      fullPath: '/cabiniste'
+      preLoaderRoute: typeof AuthenticatedCabinisteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -325,6 +344,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCabinisteRoute: typeof AuthenticatedCabinisteRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedForfaitsRoute: typeof AuthenticatedForfaitsRoute
   AuthenticatedMotivationRoute: typeof AuthenticatedMotivationRoute
@@ -337,6 +357,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCabinisteRoute: AuthenticatedCabinisteRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedForfaitsRoute: AuthenticatedForfaitsRoute,
   AuthenticatedMotivationRoute: AuthenticatedMotivationRoute,

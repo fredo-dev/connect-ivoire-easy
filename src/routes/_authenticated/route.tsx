@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, Outlet, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, Wifi, Smartphone, Receipt, User, LogOut, Shield, Brain } from "lucide-react";
+import { LayoutDashboard, Wifi, Smartphone, Receipt, User, LogOut, Shield, Brain, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -32,12 +32,17 @@ function Shell() {
     queryKey: ["is-admin"],
     queryFn: async () => !!(await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" })).data,
   });
+  const { data: isCabiniste } = useQuery({
+    queryKey: ["is-cabiniste"],
+    queryFn: async () => !!(await supabase.rpc("is_cabiniste", { _user_id: user.id })).data,
+  });
   async function signOut() {
     await qc.cancelQueries();
     qc.clear();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
+  const mobileNav = isCabiniste ? [...nav, { to: "/cabiniste", label: "Cabiniste", icon: Store } as const] : nav;
   return (
     <div className="min-h-screen md:flex">
       <ThemeToggle />
@@ -49,6 +54,11 @@ function Shell() {
               <Icon className="h-4 w-4" />{label}
             </Link>
           ))}
+          {isCabiniste && (
+            <Link to="/cabiniste" className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${path === "/cabiniste" ? "bg-accent text-primary" : "text-muted-foreground hover:bg-muted"}`}>
+              <Store className="h-4 w-4" />Espace Cabiniste
+            </Link>
+          )}
           {isAdmin && (
             <Link to="/admin" className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm ${path === "/admin" ? "bg-accent text-primary" : "text-muted-foreground hover:bg-muted"}`}>
               <Shield className="h-4 w-4" />Gestion
@@ -62,9 +72,9 @@ function Shell() {
       <main className="mx-auto w-full max-w-4xl px-5 pb-28 pt-6 md:pb-10 md:pt-10">
         <Outlet />
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-card/95 backdrop-blur md:hidden">
-        {nav.map(({ to, label, icon: Icon }) => (
-          <Link key={to} to={to} className={`flex flex-col items-center gap-1 py-2.5 text-[11px] ${path === to ? "text-primary" : "text-muted-foreground"}`}>
+      <nav className="fixed inset-x-0 bottom-0 z-40 flex overflow-x-auto border-t bg-card/95 backdrop-blur md:hidden">
+        {mobileNav.map(({ to, label, icon: Icon }) => (
+          <Link key={to} to={to} className={`flex min-w-16 flex-1 flex-col items-center gap-1 py-2.5 text-[11px] ${path === to ? "text-primary" : "text-muted-foreground"}`}>
             <Icon className="h-5 w-5" />{label}
           </Link>
         ))}

@@ -7,6 +7,14 @@ import { createJekoPayment, getJekoPayment } from "./jeko.server";
 const opIds = ["orange", "mtn", "moov", "wave"] as const;
 const phoneRe = /^\+225\d{10}$/;
 
+export const getServiceAvailability = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("service_is_open");
+    if (error) throw new Error("Disponibilité du service indisponible");
+    return { available: !!data };
+  });
+
 const startSchema = z.object({
   kind: z.enum(["forfait", "recharge"]),
   planId: z.string().uuid().optional(),
@@ -21,6 +29,9 @@ export const startPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => startSchema.parse(d))
   .handler(async ({ data, context }) => {
+    const { data: serviceOpen, error: availabilityError } = await context.supabase.rpc("service_is_open");
+    if (availabilityError) throw new Error("Impossible de vérifier la disponibilité du service");
+    if (!serviceOpen) throw new Error("Le service est temporairement fermé. Réessaie quand le cabiniste sera en ligne.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let base: number;
     let label: string;

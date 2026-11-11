@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { startPayment } from "@/lib/payments.functions";
+import { getServiceAvailability, startPayment } from "@/lib/payments.functions";
 import { profileQuery } from "@/lib/queries";
 import { computeFee, formatXOF, OPERATORS, type OperatorId } from "@/lib/fees";
 
@@ -21,8 +21,9 @@ type Props = {
 };
 
 export function PayButton({ kind, planId, amount, operator, title, trigger }: Props) {
-  const start = useServerFn(startPayment);
+  const start = useServerFn(startPayment), getAvailability = useServerFn(getServiceAvailability);
   const { data } = useQuery(profileQuery);
+  const { data: service } = useQuery({ queryKey: ["service-availability"], queryFn: () => getAvailability(), refetchInterval: 30000 });
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState<OperatorId>(operator);
@@ -56,6 +57,7 @@ export function PayButton({ kind, planId, amount, operator, title, trigger }: Pr
       <DialogContent className="max-w-sm">
         <DialogHeader><DialogTitle>{title}</DialogTitle></DialogHeader>
         <div className="space-y-4">
+          {service?.available === false && <p role="alert" className="rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">Le service est temporairement fermé. Les nouveaux paiements sont indisponibles jusqu’au retour en ligne du cabiniste.</p>}
           <div className="space-y-1.5">
             <Label>Numéro à créditer</Label>
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+2250701234567" />
@@ -76,8 +78,8 @@ export function PayButton({ kind, planId, amount, operator, title, trigger }: Pr
             <div className="flex justify-between"><span className="text-muted-foreground">Frais de service (1,5 %)</span><span>{formatXOF(fee)}</span></div>
             <div className="flex justify-between border-t pt-1 font-semibold"><span>Total</span><span className="text-primary">{formatXOF(total)}</span></div>
           </div>
-          <Button variant="hero" className="h-11 w-full" onClick={pay} disabled={loading}>
-            {loading ? "Redirection…" : `Payer ${formatXOF(total)}`}
+          <Button variant="hero" className="h-11 w-full" onClick={pay} disabled={loading || service?.available === false}>
+            {service?.available === false ? "Service temporairement fermé" : loading ? "Redirection…" : `Payer ${formatXOF(total)}`}
           </Button>
         </div>
       </DialogContent>
