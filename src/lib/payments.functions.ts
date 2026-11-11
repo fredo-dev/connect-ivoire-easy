@@ -21,6 +21,9 @@ export const startPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => startSchema.parse(d))
   .handler(async ({ data, context }) => {
+    const { data: serviceOpen, error: availabilityError } = await context.supabase.rpc("service_is_open");
+    if (availabilityError) throw new Error("Impossible de vérifier la disponibilité du service");
+    if (!serviceOpen) throw new Error("Le service est temporairement fermé. Réessaie quand le cabiniste sera en ligne.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let base: number;
     let label: string;
