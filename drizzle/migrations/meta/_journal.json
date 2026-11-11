@@ -36,6 +36,13 @@
       "when": 1794355596870,
       "tag": "0004_add_quiz_question_timer",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794355617633,
+      "tag": "0005_create_cabiniste_workspace",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      cabiniste_members: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cabiniste_state: {
+        Row: {
+          available: boolean
+          bonuses: number
+          id: boolean
+          stock: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          available?: boolean
+          bonuses?: number
+          id?: boolean
+          stock?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          available?: boolean
+          bonuses?: number
+          id?: boolean
+          stock?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           active: boolean
@@ -287,6 +329,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cabiniste_deliver: {
+        Args: { p_transaction: string; p_user: string }
+        Returns: Json
+      }
+      cabiniste_report_issue: {
+        Args: { p_reason: string; p_transaction: string; p_user: string }
+        Returns: undefined
+      }
+      cabiniste_set_availability: {
+        Args: { p_available: boolean; p_user: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -294,6 +348,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_cabiniste: { Args: { _user_id: string }; Returns: boolean }
       quiz_answer: {
         Args: {
           p_choice: number
@@ -317,6 +372,7 @@ export type Database = {
         Args: { p_operator: string; p_phone: string; p_user: string }
         Returns: string
       }
+      service_is_open: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
