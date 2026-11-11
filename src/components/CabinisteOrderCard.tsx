@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { deliverCabinisteOrder, reportCabinisteIssue, type CabinisteOrder } from '@/lib/cabiniste.functions';
 import { formatXOF } from '@/lib/fees';
+import { isWaitingTooLong } from '@/lib/cabiniste/rules';
 
 const operatorStyle: Record<string, string> = {
   orange: 'border-orange-op/50 bg-orange-op/15 text-orange-op',
@@ -40,7 +41,7 @@ export function CabinisteOrderCard({ order, now }: { order: CabinisteOrder; now:
   return <article className="space-y-4 rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <span className={`rounded-full border px-3 py-1 text-xs font-bold ${operatorStyle[order.operator] ?? ''}`}>{labels[order.operator] ?? order.operator}</span>
-      <p className={`text-sm font-semibold tabular-nums ${elapsed > 180 ? 'text-destructive' : 'text-muted-foreground'}`}>En attente depuis {waiting}</p>
+      <p className={`text-sm font-semibold tabular-nums ${isWaitingTooLong(elapsed) ? 'text-destructive' : 'text-muted-foreground'}`}>En attente depuis {waiting}</p>
     </div>
     <div><h3 className="font-semibold">{order.label}</h3><p className="mt-1 text-primary">{formatXOF(order.amount)}</p></div>
     <div className="flex items-center justify-between gap-3 rounded-xl bg-muted p-3">

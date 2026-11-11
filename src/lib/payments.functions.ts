@@ -7,6 +7,14 @@ import { createJekoPayment, getJekoPayment } from "./jeko.server";
 const opIds = ["orange", "mtn", "moov", "wave"] as const;
 const phoneRe = /^\+225\d{10}$/;
 
+export const getServiceAvailability = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("service_is_open");
+    if (error) throw new Error("Disponibilité du service indisponible");
+    return { available: !!data };
+  });
+
 const startSchema = z.object({
   kind: z.enum(["forfait", "recharge"]),
   planId: z.string().uuid().optional(),

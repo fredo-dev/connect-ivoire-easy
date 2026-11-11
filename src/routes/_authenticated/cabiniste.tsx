@@ -9,6 +9,7 @@ import { CabinisteOrderCard } from '@/components/CabinisteOrderCard';
 import { Button } from '@/components/ui/button';
 import { getCabiniste, setCabinisteAvailability } from '@/lib/cabiniste.functions';
 import { formatXOF } from '@/lib/fees';
+import { INITIAL_CABINISTE_STOCK, isLowStock } from '@/lib/cabiniste/rules';
 import { pageMeta } from '@/lib/page-meta';
 
 export const Route = createFileRoute('/_authenticated/cabiniste')({
@@ -48,8 +49,8 @@ function Cabiniste() {
   if (isLoading) return <p className="text-muted-foreground">Chargement de l’espace cabiniste…</p>;
   if (error || !data) return <div className="rounded-2xl border border-destructive/40 p-5"><h1 className="text-xl font-bold">Espace Cabiniste</h1><p role="alert" className="mt-2 text-sm text-muted-foreground">Accès réservé à l’opérateur partenaire autorisé et au gérant.</p></div>;
 
-  const lowStock = data.state.stock < 2000;
-  const stockPercent = Math.max(0, Math.min(100, data.state.stock / 15000 * 100));
+  const lowStock = isLowStock(data.state.stock);
+  const stockPercent = Math.max(0, Math.min(100, data.state.stock / INITIAL_CABINISTE_STOCK * 100));
   return <div className="space-y-7">
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div><p className="text-sm text-primary">Opérateur partenaire</p><h1 className="mt-1 text-2xl font-bold md:text-3xl">Espace Cabiniste</h1></div>
