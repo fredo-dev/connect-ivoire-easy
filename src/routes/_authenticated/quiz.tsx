@@ -1,46 +1,97 @@
-import { createFileRoute,Link } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useServerFn } from '@tanstack/react-start';
-import { queryOptions,useSuspenseQuery,useQueryClient,useQuery } from '@tanstack/react-query';
+import { queryOptions, useSuspenseQuery, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Brain,Trophy,Wallet,Check,ArrowRight,Globe,Ticket } from 'lucide-react';
+import { Brain, Trophy, Wallet, Check, ArrowRight, Globe, Ticket, TimerOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getQuiz,startQuiz,answerQuiz,withdrawQuiz,quizRanking } from '@/lib/quiz.functions';
-import { formatXOF,OPERATORS,type OperatorId } from '@/lib/fees';
+import { QuizCountdown } from '@/components/QuizCountdown';
+import { getQuiz, startQuiz, answerQuiz, nextQuiz, withdrawQuiz, quizRanking, type QuizAnswerResult } from '@/lib/quiz.functions';
+import { formatXOF, OPERATORS, type OperatorId } from '@/lib/fees';
 import { pageMeta } from '@/lib/page-meta';
-const quizQuery=queryOptions({queryKey:['quiz'],queryFn:()=>getQuiz()});
-export const Route=createFileRoute('/_authenticated/quiz')({head:()=>pageMeta('Quiz & récompenses — Cabine Online','Histoire de la Côte d’Ivoire et du monde, gains et concours des souscripteurs.'),loader:({context})=>context.queryClient.ensureQueryData(quizQuery),component:Quiz});
-function Quiz(){
- const {data}=useSuspenseQuery(quizQuery);const qc=useQueryClient();
- const start=useServerFn(startQuiz),answer=useServerFn(answerQuiz),withdraw=useServerFn(withdrawQuiz);
- const [sessionId,setSessionId]=useState<string|null>(null),[busy,setBusy]=useState(false);
- const [feedback,setFeedback]=useState<{correct:boolean;correctChoice:number;explanation:string;reward:number}|null>(null);
- const [phone,setPhone]=useState('+225'),[operator,setOperator]=useState<OperatorId>('wave');
- const [prizeId,setPrizeId]=useState('');
- const ranking=useQuery({queryKey:['quiz-ranking',prizeId],queryFn:()=>quizRanking({data:{prizeId:prizeId||undefined}})});
- const current=data.sessions.find(s=>s.id===sessionId);
- const [frozen,setFrozen]=useState<typeof current>(undefined);
- const shown=feedback?frozen:current;
- async function act(work:()=>Promise<unknown>){setBusy(true);try{await work();await qc.invalidateQueries({queryKey:['quiz']});await qc.invalidateQueries({queryKey:['quiz-ranking']});}catch(e){toast.error(e instanceof Error?e.message:'Action impossible');}finally{setBusy(false);}}
- return <div className="space-y-8">
-  <header className="pr-12"><p className="text-sm text-primary">Le défi des souscripteurs</p><h1 className="mt-1 text-2xl font-bold md:text-3xl">Quiz & récompenses</h1></header>
-  <div className="grid grid-cols-2 gap-4 border-y py-5"><div><Wallet className="mb-2 size-5 text-primary"/><p className="text-xs text-muted-foreground">Gains disponibles</p><p className="mt-1 font-display text-2xl font-bold">{formatXOF(data.balance)}</p></div><div><Trophy className="mb-2 size-5 text-warning"/><p className="text-xs text-muted-foreground">Bonnes réponses</p><p className="mt-1 font-display text-2xl font-bold">{data.earned/10}</p></div></div>
-  <section className="space-y-4"><div className="flex items-center gap-2"><Brain className="size-5 text-primary"/><h2 className="font-semibold">À toi de jouer</h2></div>
-   {shown?.question ? <div className="space-y-5 rounded-lg border bg-card p-5">
-    <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground"><span>{shown.question.category}</span><span>Question {shown.answered+1} / 20 · +10 F si correcte</span></div>
-    <progress className="h-1 w-full accent-primary" max={20} value={shown.answered}/>
-    <h3 className="text-lg font-semibold">{shown.question.prompt}</h3>
-    <div className="grid gap-2">{shown.question.options.map((option,i)=><Button key={option} variant="outline" disabled={busy||!!feedback} className={`h-auto min-h-12 justify-start whitespace-normal text-left ${feedback?.correctChoice===i?'border-success text-success':''}`} onClick={()=>act(async()=>{setFrozen(shown);setFeedback(await answer({data:{sessionId:shown.id,index:shown.answered,choice:i}}));})}><span className="mr-3 text-muted-foreground">{String.fromCharCode(65+i)}</span>{option}{feedback?.correctChoice===i&&<Check className="ml-auto size-4 shrink-0"/>}</Button>)}</div>
-   </div> : !feedback && sessionId && <p className="rounded-lg border border-success p-4 text-success">Partie terminée ! Gains : {formatXOF(current?.earned??0)}.</p>}
-   {feedback&&<div role="status" className="space-y-3 border-l-2 border-primary pl-4"><p className="font-semibold">{feedback.correct?'Bonne réponse ! +10 FCFA':'Pas cette fois · +0 FCFA'}</p><p className="text-sm text-muted-foreground">{feedback.explanation}</p><Button onClick={()=>setFeedback(null)}>Continuer <ArrowRight className="ml-2 size-4"/></Button></div>}
-   {!sessionId && <div className="space-y-2">{data.subscriptions.map(t=>{const s=data.sessions.find(s=>s.transaction_id===t.id);return <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-4"><div className="min-w-0"><p className="font-medium">{t.label}</p><p className="text-xs text-muted-foreground">{s?`${s.answered}/20 questions · ${formatXOF(s.earned)}`:'20 questions disponibles'} · {new Date(t.created_at).toLocaleDateString('fr-FR')}</p></div><Button disabled={busy||s?.answered===20} onClick={()=>act(async()=>{setSessionId(s?.id??await start({data:{transactionId:t.id}}));})}>{s?.answered===20?'Terminé':s?'Reprendre':'Jouer'}</Button></div>;})}{!data.subscriptions.length&&<div className="border-y py-6"><p className="mb-4 text-sm text-muted-foreground">Aucune souscription payée pour le moment.</p><Button asChild><Link to="/forfaits">Choisir un forfait <ArrowRight className="ml-2 size-4"/></Link></Button></div>}</div>}
-   {sessionId&&<Button variant="ghost" disabled={busy} onClick={()=>{setSessionId(null);setFeedback(null);}}>Retour aux parties</Button>}
-  </section>
-  <section className="space-y-4 border-t pt-6"><h2 className="font-semibold">Recevoir mes gains</h2><p className="text-sm text-muted-foreground">Versement Mobile Money après validation du gérant.</p><form className="grid gap-3 sm:grid-cols-2" onSubmit={e=>{e.preventDefault();void act(async()=>{await withdraw({data:{phone:phone.replace(/\s/g,''),operator}});toast.success('Demande de versement envoyée au gérant');});}}><div className="space-y-2"><Label htmlFor="reward-phone">Numéro Mobile Money</Label><Input id="reward-phone" type="tel" value={phone} onChange={e=>setPhone(e.target.value)} required/></div><div className="space-y-2"><Label htmlFor="reward-operator">Opérateur</Label><select id="reward-operator" className="h-10 w-full rounded-md border bg-background px-3" value={operator} onChange={e=>setOperator(e.target.value as OperatorId)}>{OPERATORS.map(o=><option key={o.id} value={o.id}>{o.label}</option>)}</select></div><Button type="submit" disabled={busy||data.balance<=0}>Demander {formatXOF(data.balance)}</Button></form>{data.withdrawals.map(w=><div key={w.id} className="flex flex-wrap justify-between gap-2 border-b py-2 text-sm"><span>{formatXOF(w.amount)} · {w.phone}</span><span className="text-muted-foreground">{w.status==='paid'?'Versé':w.status==='rejected'?'Refusé':'En attente'}</span></div>)}</section>
-  <section className="space-y-4 border-t pt-6"><h2 className="flex items-center gap-2 font-semibold"><Ticket className="size-5 text-primary"/>Les grands lots</h2>{data.prizes.length?data.prizes.map(p=><div key={p.id} className="rounded-lg border bg-card p-4"><h3 className="font-semibold">{p.title}</h3><p className="mt-1 text-sm text-muted-foreground">{p.description}</p><p className="mt-3 text-xs text-muted-foreground">Du {new Date(p.starts_at).toLocaleDateString('fr-FR')} au {new Date(p.ends_at).toLocaleDateString('fr-FR')} · {p.awarded_at?'Lot attribué':new Date(p.ends_at)<new Date()?'Concours terminé':'Concours ouvert'}</p><Button className="mt-3" variant="outline" onClick={()=>setPrizeId(p.id)}>Voir le classement</Button></div>):<p className="text-sm text-muted-foreground">Aucun lot annoncé. Billets Fally / Takola envisagés, dates et disponibilité à confirmer.</p>}</section>
-  <section className="space-y-4"><h2 className="flex items-center gap-2 font-semibold"><Globe className="size-5 text-success"/>Classement {prizeId?'du concours':'général'}</h2><p className="text-xs text-muted-foreground">Souscriptions payées, puis bonnes réponses. En cas d’égalité parfaite : identifiant du compte.</p>{prizeId&&<Button variant="ghost" onClick={()=>setPrizeId('')}>Classement général</Button>}{ranking.isError?<p role="alert">Classement indisponible.</p>:ranking.data?.length?<div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-xs text-muted-foreground"><tr><th className="py-3">Joueur</th><th>Souscriptions</th><th>Score</th></tr></thead><tbody>{ranking.data.slice(0,20).map(p=><tr key={p.rank} className={`border-t ${p.me?'text-primary':''}`}><td className="py-3">#{p.rank} · {p.label}</td><td>{p.subscriptions}</td><td>{p.score}</td></tr>)}</tbody></table></div>:<p className="text-sm text-muted-foreground">Aucun participant pour le moment.</p>}</section>
-  <section className="border-t pt-6"><h2 className="mb-3 font-semibold">Un peu de motivation</h2><Button asChild variant="outline"><Link to="/motivation">Voir les vidéos <ArrowRight className="ml-2 size-4"/></Link></Button></section>
- </div>;
+
+const quizQuery = queryOptions({ queryKey: ['quiz'], queryFn: () => getQuiz() });
+export const Route = createFileRoute('/_authenticated/quiz')({
+  head: () => pageMeta('Quiz & récompenses — Cabine Online', 'Histoire de la Côte d’Ivoire et du monde, gains et concours des souscripteurs.'),
+  loader: ({ context }) => context.queryClient.ensureQueryData(quizQuery),
+  component: Quiz,
+});
+
+function Quiz() {
+  const { data } = useSuspenseQuery(quizQuery);
+  const qc = useQueryClient();
+  const start = useServerFn(startQuiz), answer = useServerFn(answerQuiz), next = useServerFn(nextQuiz), withdraw = useServerFn(withdrawQuiz);
+  const [sessionId, setSessionId] = useState<string | null>(null), [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState<QuizAnswerResult | null>(null);
+  const [phone, setPhone] = useState('+225'), [operator, setOperator] = useState<OperatorId>('wave');
+  const [prizeId, setPrizeId] = useState('');
+  const ranking = useQuery({ queryKey: ['quiz-ranking', prizeId], queryFn: () => quizRanking({ data: { prizeId: prizeId || undefined } }) });
+  const current = data.sessions.find(s => s.id === sessionId);
+  const [frozen, setFrozen] = useState<typeof current>(undefined);
+  const shown = feedback ? frozen : current;
+
+  async function act(work: () => Promise<unknown>) {
+    setBusy(true);
+    try {
+      await work();
+      await qc.invalidateQueries({ queryKey: ['quiz'] });
+      await qc.invalidateQueries({ queryKey: ['quiz-ranking'] });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Action impossible');
+    } finally { setBusy(false); }
+  }
+  function expireCurrent() {
+    setFeedback(null); setFrozen(undefined);
+    toast.error('Temps écoulé : la partie est terminée. Tes gains sont conservés.');
+    void act(async () => undefined);
+  }
+  function continueQuiz() {
+    if (!shown) return;
+    void act(async () => {
+      if (shown.answered + 1 < 20) await next({ data: { sessionId: shown.id } });
+      setFeedback(null); setFrozen(undefined);
+    });
+  }
+
+  return <div className="space-y-8">
+    <header className="pr-12"><p className="text-sm text-primary">Le défi des souscripteurs</p><h1 className="mt-1 text-2xl font-bold md:text-3xl">Quiz & récompenses</h1></header>
+    <div className="grid grid-cols-2 gap-4 border-y py-5"><div><Wallet className="mb-2 size-5 text-primary" /><p className="text-xs text-muted-foreground">Gains disponibles</p><p className="mt-1 font-display text-2xl font-bold">{formatXOF(data.balance)}</p></div><div><Trophy className="mb-2 size-5 text-warning" /><p className="text-xs text-muted-foreground">Bonnes réponses</p><p className="mt-1 font-display text-2xl font-bold">{data.earned / 10}</p></div></div>
+    <section className="space-y-4">
+      <div className="flex items-center gap-2"><Brain className="size-5 text-primary" /><h2 className="font-semibold">À toi de jouer</h2></div>
+      <p className="rounded-xl border border-primary/30 bg-accent p-3 text-sm"><strong>15 secondes par question.</strong> À zéro, la partie se termine et les gains déjà obtenus sont conservés.</p>
+      {shown?.question ? <div className="space-y-5 rounded-lg border bg-card p-5">
+        <div className="flex flex-wrap justify-between gap-2 text-xs text-muted-foreground"><span>{shown.question.category}</span><span>Question {shown.answered + 1} / 20 · +10 F si correcte</span></div>
+        <progress className="h-1 w-full accent-primary" max={20} value={shown.answered} />
+        {!feedback && shown.deadline && <QuizCountdown deadline={shown.deadline} disabled={busy} onExpire={expireCurrent} />}
+        <h3 className="text-lg font-semibold">{shown.question.prompt}</h3>
+        <div className="grid gap-2">{shown.question.options.map((option, i) => <Button key={option} variant="outline" disabled={busy || !!feedback} className={`h-auto min-h-12 justify-start whitespace-normal text-left ${feedback?.correctChoice === i ? 'border-success text-success' : ''}`} onClick={() => act(async () => {
+          setFrozen(shown);
+          const result = await answer({ data: { sessionId: shown.id, index: shown.answered, choice: i } });
+          if (result.expired) {
+            setFeedback(null); setFrozen(undefined);
+            toast.error('Temps écoulé : la partie est terminée. Tes gains sont conservés.');
+            return;
+          }
+          setFeedback(result);
+        })}><span className="mr-3 text-muted-foreground">{String.fromCharCode(65 + i)}</span>{option}{feedback?.correctChoice === i && <Check className="ml-auto size-4 shrink-0" />}</Button>)}</div>
+      </div> : !feedback && sessionId && current?.status === 'paused' && <div className="rounded-lg border bg-card p-5"><p className="font-semibold">Question suivante prête</p><p className="mt-1 text-sm text-muted-foreground">Les 15 secondes démarrent quand tu continues.</p><Button className="mt-4" disabled={busy} onClick={continueQuiz}>Lancer le chronomètre <ArrowRight className="ml-2 size-4" /></Button></div>}
+      {!feedback && sessionId && current && ['timeout', 'completed'].includes(current.status) && <div className={`rounded-lg border p-4 ${current.status === 'timeout' ? 'border-destructive text-destructive' : 'border-success text-success'}`}>
+        <p className="flex items-center gap-2 font-semibold">{current.status === 'timeout' && <TimerOff className="size-5" />}{current.status === 'timeout' ? 'Temps écoulé : partie terminée' : 'Partie terminée !'}</p>
+        <p className="mt-1 text-sm">Gains conservés : {formatXOF(current.earned)}.</p>
+      </div>}
+      {feedback && <div role="status" className="space-y-3 border-l-2 border-primary pl-4"><p className="font-semibold">{feedback.correct ? 'Bonne réponse ! +10 FCFA' : 'Pas cette fois · +0 FCFA'}</p><p className="text-sm text-muted-foreground">{feedback.explanation}</p><Button disabled={busy} onClick={continueQuiz}>{shown && shown.answered + 1 < 20 ? 'Question suivante' : 'Voir mes gains'} <ArrowRight className="ml-2 size-4" /></Button></div>}
+      {!sessionId && <div className="space-y-2">{data.subscriptions.map(t => {
+        const s = data.sessions.find(s => s.transaction_id === t.id);
+        const done = s?.status === 'completed' || s?.status === 'timeout';
+        return <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg border bg-card p-4"><div className="min-w-0"><p className="font-medium">{t.label}</p><p className="text-xs text-muted-foreground">{s ? `${s.answered}/20 questions · ${formatXOF(s.earned)}` : '20 questions disponibles'} · {new Date(t.created_at).toLocaleDateString('fr-FR')}</p></div><Button disabled={busy || done} onClick={() => act(async () => { setFeedback(null); setFrozen(undefined); setSessionId(s?.id ?? await start({ data: { transactionId: t.id } })); })}>{done ? 'Terminé' : s ? 'Reprendre' : 'Jouer'}</Button></div>;
+      })}{!data.subscriptions.length && <div className="border-y py-6"><p className="mb-4 text-sm text-muted-foreground">Aucune souscription payée pour le moment.</p><Button asChild><Link to="/forfaits">Choisir un forfait <ArrowRight className="ml-2 size-4" /></Link></Button></div>}</div>}
+      {sessionId && <Button variant="ghost" disabled={busy} onClick={() => { setSessionId(null); setFeedback(null); setFrozen(undefined); }}>Retour aux parties</Button>}
+    </section>
+    <section className="space-y-4 border-t pt-6"><h2 className="font-semibold">Recevoir mes gains</h2><p className="text-sm text-muted-foreground">Versement Mobile Money après validation du gérant.</p><form className="grid gap-3 sm:grid-cols-2" onSubmit={e => { e.preventDefault(); void act(async () => { await withdraw({ data: { phone: phone.replace(/\s/g, ''), operator } }); toast.success('Demande de versement envoyée au gérant'); }); }}><div className="space-y-2"><Label htmlFor="reward-phone">Numéro Mobile Money</Label><Input id="reward-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} required /></div><div className="space-y-2"><Label htmlFor="reward-operator">Opérateur</Label><select id="reward-operator" className="h-10 w-full rounded-md border bg-background px-3" value={operator} onChange={e => setOperator(e.target.value as OperatorId)}>{OPERATORS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}</select></div><Button type="submit" disabled={busy || data.balance <= 0}>Demander {formatXOF(data.balance)}</Button></form>{data.withdrawals.map(w => <div key={w.id} className="flex flex-wrap justify-between gap-2 border-b py-2 text-sm"><span>{formatXOF(w.amount)} · {w.phone}</span><span className="text-muted-foreground">{w.status === 'paid' ? 'Versé' : w.status === 'rejected' ? 'Refusé' : 'En attente'}</span></div>)}</section>
+    <section className="space-y-4 border-t pt-6"><h2 className="flex items-center gap-2 font-semibold"><Ticket className="size-5 text-primary" />Les grands lots</h2>{data.prizes.length ? data.prizes.map(p => <div key={p.id} className="rounded-lg border bg-card p-4"><h3 className="font-semibold">{p.title}</h3><p className="mt-1 text-sm text-muted-foreground">{p.description}</p><p className="mt-3 text-xs text-muted-foreground">Du {new Date(p.starts_at).toLocaleDateString('fr-FR')} au {new Date(p.ends_at).toLocaleDateString('fr-FR')} · {p.awarded_at ? 'Lot attribué' : new Date(p.ends_at) < new Date() ? 'Concours terminé' : 'Concours ouvert'}</p><Button className="mt-3" variant="outline" onClick={() => setPrizeId(p.id)}>Voir le classement</Button></div>) : <p className="text-sm text-muted-foreground">Aucun lot annoncé. Billets Fally / Takola envisagés, dates et disponibilité à confirmer.</p>}</section>
+    <section className="space-y-4"><h2 className="flex items-center gap-2 font-semibold"><Globe className="size-5 text-success" />Classement {prizeId ? 'du concours' : 'général'}</h2><p className="text-xs text-muted-foreground">Souscriptions payées, puis bonnes réponses. En cas d’égalité parfaite : identifiant du compte.</p>{prizeId && <Button variant="ghost" onClick={() => setPrizeId('')}>Classement général</Button>}{ranking.isError ? <p role="alert">Classement indisponible.</p> : ranking.data?.length ? <div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="text-xs text-muted-foreground"><tr><th className="py-3">Joueur</th><th>Souscriptions</th><th>Score</th></tr></thead><tbody>{ranking.data.slice(0, 20).map(p => <tr key={p.rank} className={`border-t ${p.me ? 'text-primary' : ''}`}><td className="py-3">#{p.rank} · {p.label}</td><td>{p.subscriptions}</td><td>{p.score}</td></tr>)}</tbody></table></div> : <p className="text-sm text-muted-foreground">Aucun participant pour le moment.</p>}</section>
+    <section className="border-t pt-6"><h2 className="mb-3 font-semibold">Un peu de motivation</h2><Button asChild variant="outline"><Link to="/motivation">Voir les vidéos <ArrowRight className="ml-2 size-4" /></Link></Button></section>
+  </div>;
 }
