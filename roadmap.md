@@ -11,3 +11,5 @@
 - [x] Adapter le formulaire au modèle fourni (présentation centrée, modes explicites, cases et pavé numérique)
 - [ ] Vérification par SMS à l'inscription — attend un service SMS (ex. Twilio)
 - Note : les clés Jèko sont déjà côté serveur (pas besoin d'edge function)
+- [ ] Quiz : chronomètre serveur de 15 secondes par question, fin de partie à zéro avec gains conservés
+- [ ] Espace Cabiniste : disponibilité bloquant les paiements, stock, primes, file temps réel et livraisons du jour
