@@ -1,4 +1,4 @@
-export const SERVICE_FEE_RATE = 0.015;
+export const SERVICE_FEE_RATE = 0.03;
 
 export function computeFee(amount: number) {
   const fee = Math.ceil(amount * SERVICE_FEE_RATE);
