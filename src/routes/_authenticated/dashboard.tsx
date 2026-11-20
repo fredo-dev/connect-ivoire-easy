@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Wifi, Smartphone, ArrowRight, Brain, Bell } from "lucide-react";
 import { toast } from "sonner";
@@ -28,7 +28,9 @@ function Dashboard() {
   month.setHours(0, 0, 0, 0);
   const activePlans = ok.filter((t) => t.kind === "forfait" && new Date(t.created_at) >= month).length;
   const first = me.profile?.full_name?.split(" ")[0];
-  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(Notification.permission === "granted");
+  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(
+    typeof Notification !== "undefined" && Notification.permission === "granted"
+  );
 
   async function handleToggleAlerts() {
     try {
