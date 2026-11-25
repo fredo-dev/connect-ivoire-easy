@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { CircleCheck, Clock3, Package, WalletCards, Bell } from "lucide-react";
@@ -23,7 +24,9 @@ function Cabiniste() {
   const { data, error, isLoading } = useQuery({ queryKey: ["cabiniste"], queryFn: () => getCabiniste() });
   const [now, setNow] = useState(Date.now());
   const [switching, setSwitching] = useState(false);
-  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(Notification.permission === "granted");
+  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(
+    typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted"
+  );
 
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
   useEffect(() => {
@@ -117,11 +120,9 @@ function Cabiniste() {
               </div>
               <div className="text-right"><p>{formatXOF(order.amount)}</p><span className="inline-flex items-center gap-1 text-success"><CircleCheck className="size-4" />Validé</span></div>
             </div>
-          )) : <p className="p-5 text-sm text-muted-foreground">Aucune livraison aujourd’hui.</p>}
+          )) : <p className="p-4 text-sm text-muted-foreground">Aucune livraison aujourd’hui.</p>}
         </div>
       </section>
-
-      <Button variant="outline" className="w-full" disabled={switching} onClick={toggleAvailability}>{data.state.available ? "Mettre le service en pause" : "Réactiver le service"}</Button>
     </div>
   );
 }
