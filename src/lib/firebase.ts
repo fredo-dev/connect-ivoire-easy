@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, isSupported, type Messaging } from "firebase/messaging";
 
 export const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyCabineOnlinePlaceholder",
@@ -11,12 +11,26 @@ export const firebaseConfig = {
 };
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-export const messaging = getMessaging(app);
+
+let messagingPromise: Promise<Messaging | null> | null = null;
+
+function getSafeMessaging(): Promise<Messaging | null> {
+  if (typeof window === "undefined") return Promise.resolve(null);
+  if (!messagingPromise) {
+    messagingPromise = isSupported()
+      .then((supported) => (supported ? getMessaging(app) : null))
+      .catch(() => null);
+  }
+  return messagingPromise;
+}
 
 export async function enableCabineAlerts() {
-  if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+  if (typeof window === "undefined" || !("Notification" in window) || !("serviceWorker" in navigator)) {
     return false;
   }
+
+  const messaging = await getSafeMessaging();
+  if (!messaging) return false;
 
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return false;
@@ -30,6 +44,14 @@ export async function enableCabineAlerts() {
 }
 
 export function watchCabineMessages(callback: (payload: Record<string, unknown>) => void) {
-  if (!("serviceWorker" in navigator)) return undefined;
-  return onMessage(messaging, (payload) => callback(payload?.data ?? {}));
+  let unsubscribe: (() => void) | undefined;
+
+  void getSafeMessaging().then((messaging) => {
+    if (!messaging) return;
+    unsubscribe = onMessage(messaging, (payload) => callback(payload?.data ?? {}));
+  });
+
+  return () => {
+    if (unsubscribe) unsubscribe();
+  };
 }
