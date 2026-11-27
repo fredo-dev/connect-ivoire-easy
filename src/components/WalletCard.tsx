@@ -17,8 +17,8 @@ const OPERATORS = [
 type Props = {
   balance: number; // solde actuel en XOF
   limit: number; // plafond du compte en XOF
-  defaultPhone?: string | null;
-  defaultOperator?: string | null;
+  defaultPhone?: string | null | undefined;
+  defaultOperator?: string | null | undefined;
 };
 
 export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Props) {
@@ -34,7 +34,7 @@ export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Pr
 
   // Fermer avec la touche Échap
   useEffect(() => {
-    if (!open) return;
+    if (!open) return undefined;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -49,7 +49,10 @@ export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Pr
 
   async function handleSubmit() {
     const error = validate();
-    if (error) return toast.error(error);
+    if (error) {
+      toast.error(error);
+      return;
+    }
 
     setLoading(true);
     try {
