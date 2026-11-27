@@ -75,7 +75,7 @@ export function PayButton({ kind, planId, amount, operator, title, trigger }: Pr
           </div>
           <div className="space-y-1 rounded-xl bg-muted p-3 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">Montant</span><span>{formatXOF(amount)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Frais de service (1,5 %)</span><span>{formatXOF(fee)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Frais de service (3 %)</span><span>{formatXOF(fee)}</span></div>
             <div className="flex justify-between border-t pt-1 font-semibold"><span>Total</span><span className="text-primary">{formatXOF(total)}</span></div>
           </div>
           <Button variant="hero" className="h-11 w-full" onClick={pay} disabled={loading || service?.available === false}>
