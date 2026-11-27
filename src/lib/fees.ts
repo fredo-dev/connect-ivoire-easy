@@ -19,3 +19,4 @@ export const operatorLabel = (id: string) => OPERATORS.find((o) => o.id === id)?
 
 export const formatXOF = (n: number) =>
   new Intl.NumberFormat("fr-FR").format(n) + " FCFA";
+
