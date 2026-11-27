@@ -87,11 +87,12 @@ function Cabiniste() {
     localStorage.setItem("cabine-sound-alerts", "true");
     setAlertsEnabled(true);
     try {
-      await enableCabineAlerts();
-    } catch {
-      // Fallback sonore déjà actif
+      const ok = await enableCabineAlerts();
+      toast.success(ok ? "Alertes Push et sonores activées !" : "Alertes sonores activées sur cet appareil !");
+    } catch (err) {
+      console.error("Erreur Push Firebase :", err);
+      toast.success("Alertes sonores activées sur cet appareil !");
     }
-    toast.success("Alertes sonores et visuelles activées !");
   }
 
   if (isLoading) return <p className="text-muted-foreground">Chargement de l’espace cabiniste…</p>;
@@ -131,7 +132,7 @@ function Cabiniste() {
         <div className="flex items-center gap-3">
           <Bell className="h-5 w-5 text-primary" />
           <div>
-            <p className="font-medium">{alertsEnabled ? "Alertes sonores actives" : "Activer les alertes"}</p>
+            <p className="font-medium">{alertsEnabled ? "Alertes actives" : "Activer les alertes"}</p>
             <p className="text-xs text-muted-foreground">Bip sonore et notification à chaque nouvelle commande</p>
           </div>
         </div>
