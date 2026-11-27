@@ -65,6 +65,13 @@ function Dashboard() {
         </div>
       </div>
 
+      <WalletCard
+  balance={me.profile?.balance ?? 0}
+  limit={me.profile?.deposit_limit ?? 500000}
+  defaultPhone={me.profile?.phone}
+  defaultOperator={me.profile?.operator}
+/>
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Link to="/forfaits" className="rounded-2xl border bg-card p-5 hover:border-primary/50">
           <Wifi className="h-6 w-6 text-primary" /><p className="mt-3 font-semibold">Acheter un forfait</p>
