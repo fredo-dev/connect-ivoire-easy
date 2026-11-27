@@ -53,7 +53,14 @@ export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Pr
 
     setLoading(true);
     try {
-      const { paymentUrl } = await createDeposit({ amount: value, operator, phone });
+      const { paymentUrl } = await createDeposit({
+        data: {
+          amount: value,
+          operator: operator as "orange" | "mtn" | "moov" | "wave",
+          phone,
+          origin: window.location.origin,
+        },
+      });
       window.location.href = paymentUrl; // page de paiement sécurisée du prestataire
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Le dépôt n'a pas pu être lancé.");
