@@ -2,12 +2,13 @@ import { initializeApp, getApps } from "firebase/app";
 import { getMessaging, getToken, onMessage, isSupported, type Messaging } from "firebase/messaging";
 
 export const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyCabineOnlinePlaceholder",
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "cabine-online"}.firebaseapp.com`,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "AIzaSyDoIc7psx4NfzVLzMQmG1oB5Iaot_yFsb4",
+  authDomain: "cabine-online.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "cabine-online",
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "cabine-online"}.appspot.com`,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ?? "000000000000",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID ?? "1:000000000000:web:0000000000000000",
+  storageBucket: "cabine-online.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ?? "418803291709",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID ?? "1:418803291709:web:5073cb18f6388c80587c54",
+  measurementId: "G-03LE3X13VB",
 };
 
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
