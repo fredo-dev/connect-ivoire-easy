@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CircleCheck, Clock3, Package, WalletCards, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { CabinisteOrderCard } from "@/components/CabinisteOrderCard";
-import { Button } from "@/components/ui/button";
 import { getCabiniste, setCabinisteAvailability } from "@/lib/cabiniste.functions";
 import { formatXOF } from "@/lib/fees";
 import { INITIAL_CABINISTE_STOCK, isLowStock } from "@/lib/cabiniste/rules";
@@ -18,15 +17,48 @@ export const Route = createFileRoute("/_authenticated/cabiniste")({
   component: Cabiniste,
 });
 
+function playAlertSound() {
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.45);
+  } catch {
+    // Audio bloqué par le navigateur
+  }
+}
+
 function Cabiniste() {
   const qc = useQueryClient();
   const setAvailability = useServerFn(setCabinisteAvailability);
-  const { data, error, isLoading } = useQuery({ queryKey: ["cabiniste"], queryFn: () => getCabiniste() });
+  const { data, error, isLoading } = useQuery({ queryKey: ["cabiniste"], queryFn: () => getCabiniste(), refetchInterval: 10000 });
   const [now, setNow] = useState(Date.now());
   const [switching, setSwitching] = useState(false);
-  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(
-    typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted"
-  );
+  const [alertsEnabled, setAlertsEnabled] = useState<boolean>(false);
+  const prevQueueCount = useRef<number | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("cabine-sound-alerts");
+    if (saved === "true") setAlertsEnabled(true);
+  }, []);
+
+  useEffect(() => {
+    if (!data) return;
+    if (prevQueueCount.current !== null && data.queue.length > prevQueueCount.current) {
+      if (alertsEnabled) playAlertSound();
+      toast.info("Nouvelle commande reçue !");
+    }
+    prevQueueCount.current = data.queue.length;
+  }, [data, alertsEnabled]);
 
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
   useEffect(() => {
@@ -51,13 +83,15 @@ function Cabiniste() {
   }
 
   async function handleAlerts() {
+    playAlertSound();
+    localStorage.setItem("cabine-sound-alerts", "true");
+    setAlertsEnabled(true);
     try {
-      const ok = await enableCabineAlerts();
-      setAlertsEnabled(ok);
-      toast[ok ? "success" : "error"](ok ? "Alertes activées" : "Les alertes n'ont pas pu être activées.");
+      await enableCabineAlerts();
     } catch {
-      toast.error("Activation des alertes impossible.");
+      // Fallback sonore déjà actif
     }
+    toast.success("Alertes sonores et visuelles activées !");
   }
 
   if (isLoading) return <p className="text-muted-foreground">Chargement de l’espace cabiniste…</p>;
@@ -97,11 +131,11 @@ function Cabiniste() {
         <div className="flex items-center gap-3">
           <Bell className="h-5 w-5 text-primary" />
           <div>
-            <p className="font-medium">{alertsEnabled ? "Alertes actives" : "Activer les alertes"}</p>
-            <p className="text-xs text-muted-foreground">Alerte quand une commande passe en attente puis validée</p>
+            <p className="font-medium">{alertsEnabled ? "Alertes sonores actives" : "Activer les alertes"}</p>
+            <p className="text-xs text-muted-foreground">Bip sonore et notification à chaque nouvelle commande</p>
           </div>
         </div>
-        <span className="text-sm text-primary">{alertsEnabled ? "OK" : "Activées"}</span>
+        <span className="text-sm font-medium text-primary">{alertsEnabled ? "Actif" : "Activer"}</span>
       </button>
 
       <section className="space-y-4">
