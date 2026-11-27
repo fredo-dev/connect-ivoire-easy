@@ -1,7 +1,8 @@
 export const SERVICE_FEE_RATE = 0.03;
+export const MIN_SERVICE_FEE = 20;
 
 export function computeFee(amount: number) {
-  const fee = Math.ceil(amount * SERVICE_FEE_RATE);
+  const fee = Math.max(MIN_SERVICE_FEE, Math.ceil(amount * SERVICE_FEE_RATE));
   return { amount, fee, total: amount + fee };
 }
 
