@@ -3,7 +3,7 @@ const BASE = "https://api.jeko.africa/partner_api";
 function headers() {
   const key = process.env["JEKO_API_KEY"];
   const keyId = process.env["JEKO_API_KEY_ID"];
-  if (!key || !keyId) throw new Error("Jèko n'est pas configuré");
+  if (!key || !keyId) throw new Error("Jèko n'est pas configuré (clé manquante)");
   return { "X-API-KEY": key, "X-API-KEY-ID": keyId, "Content-Type": "application/json" };
 }
 
@@ -22,7 +22,7 @@ export async function createJekoPayment(input: {
   errorUrl: string;
 }): Promise<JekoPaymentRequest> {
   const storeId = process.env["JEKO_STORE_ID"];
-  if (!storeId) throw new Error("Jèko n'est pas configuré");
+  if (!storeId) throw new Error("Jèko n'est pas configuré (Store ID manquant)");
   const res = await fetch(`${BASE}/payment_requests`, {
     method: "POST",
     headers: headers(),
@@ -42,8 +42,9 @@ export async function createJekoPayment(input: {
     }),
   });
   if (!res.ok) {
-    console.error("Jeko create error", res.status, await res.text());
-    throw new Error("Le paiement n'a pas pu être initié");
+    const detail = await res.text();
+    console.error("Jeko create error", res.status, detail);
+    throw new Error(`Erreur Jèko (${res.status}) : ${detail}`);
   }
   return (await res.json()) as JekoPaymentRequest;
 }
@@ -51,8 +52,10 @@ export async function createJekoPayment(input: {
 export async function getJekoPayment(id: string): Promise<JekoPaymentRequest> {
   const res = await fetch(`${BASE}/payment_requests/${encodeURIComponent(id)}`, { headers: headers() });
   if (!res.ok) {
-    console.error("Jeko status error", res.status, await res.text());
-    throw new Error("Statut indisponible");
+    const detail = await res.text();
+    console.error("Jeko status error", res.status, detail);
+    throw new Error(`Statut indisponible (${res.status}) : ${detail}`);
   }
   return (await res.json()) as JekoPaymentRequest;
 }
+
