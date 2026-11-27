@@ -1,4 +1,3 @@
-// src/lib/deposits.ts
 import { startPayment } from "./payments.functions";
 
 type OperatorId = "orange" | "mtn" | "moov" | "wave";
@@ -9,9 +8,6 @@ export type DepositInput = {
   phone: string;
 };
 
-/**
- * Normalise un numéro ivoirien au format +225XXXXXXXXXX exigé par startPayment
- */
 function formatIvoryCoastPhone(raw: string): string {
   const digits = raw.replace(/\D/g, "");
   if (digits.startsWith("225") && digits.length === 13) {
