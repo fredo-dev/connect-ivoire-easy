@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatXOF } from "@/lib/fees";
-import { createDeposit } from "@/lib/deposits";
+import { createDeposit } from "@/lib/deposits.functions";
 
 const MIN_DEPOSIT = 500;
 const QUICK_AMOUNTS = [1000, 5000, 10000, 25000];
