@@ -4,17 +4,19 @@ import { Wifi, Smartphone, ArrowRight, Brain, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { profileQuery, transactionsQuery } from "@/lib/queries";
+import { walletQuery } from "@/lib/deposits.functions";
 import { formatXOF, operatorLabel } from "@/lib/fees";
 import { StatusBadge } from "@/components/StatusBadge";
+import { WalletCard } from "@/components/WalletCard";
 import { pageMeta } from "@/lib/page-meta";
 import { enableCabineAlerts } from "@/lib/firebase";
-import { WalletCard } from "@/components/WalletCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => pageMeta("Tableau de bord — Cabine Online", "Vue d'ensemble de ton compte, de tes forfaits et de tes opérations."),
   loader: ({ context }) => Promise.all([
     context.queryClient.ensureQueryData(profileQuery),
     context.queryClient.ensureQueryData(transactionsQuery),
+    context.queryClient.ensureQueryData(walletQuery),
   ]),
   component: Dashboard,
 });
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const { data: me } = useSuspenseQuery(profileQuery);
   const { data: txs } = useSuspenseQuery(transactionsQuery);
+  const { data: wallet } = useSuspenseQuery(walletQuery);
   const ok = txs.filter((t) => t.status === "success");
   const spent = ok.reduce((s, t) => s + t.total, 0);
   const month = new Date();
@@ -35,9 +38,9 @@ function Dashboard() {
 
   async function handleToggleAlerts() {
     try {
-      const ok = await enableCabineAlerts();
-      setAlertsEnabled(ok);
-      toast[ok ? "success" : "error"](ok ? "Alertes activées" : "Les alertes n'ont pas pu être activées.");
+      const granted = await enableCabineAlerts();
+      setAlertsEnabled(granted);
+      toast[granted ? "success" : "error"](granted ? "Alertes activées" : "Les alertes n'ont pas pu être activées.");
     } catch {
       toast.error("Activation des alertes impossible.");
     }
@@ -56,6 +59,13 @@ function Dashboard() {
         </Link>
       )}
 
+      <WalletCard
+        balance={wallet.balance}
+        limit={wallet.limit}
+        defaultPhone={me.profile?.phone}
+        defaultOperator={me.profile?.operator}
+      />
+
       <div className="rounded-3xl bg-brand p-6 text-primary-foreground shadow-glow">
         <p className="text-sm opacity-80">Total dépensé</p>
         <p className="mt-1 font-display text-3xl font-bold">{formatXOF(spent)}</p>
@@ -64,13 +74,6 @@ function Dashboard() {
           <div><p className="opacity-80">Opérateur</p><p className="font-semibold">{me.profile?.operator ? operatorLabel(me.profile.operator) : "—"}</p></div>
         </div>
       </div>
-
-      <WalletCard
-  balance={me.profile?.balance ?? 0}
-  limit={me.profile?.deposit_limit ?? 500000}
-  defaultPhone={me.profile?.phone}
-  defaultOperator={me.profile?.operator}
-/>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Link to="/forfaits" className="rounded-2xl border bg-card p-5 hover:border-primary/50">
@@ -92,7 +95,7 @@ function Dashboard() {
             <p className="text-xs text-muted-foreground">Notification quand une commande est confirmée</p>
           </div>
         </div>
-        <span className="text-sm text-primary">{alertsEnabled ? "OK" : "Activées"}</span>
+        <span className="text-sm text-primary">{alertsEnabled ? "OK" : "Activer"}</span>
       </button>
 
       <div>
