@@ -8,6 +8,7 @@ import { formatXOF, operatorLabel } from "@/lib/fees";
 import { StatusBadge } from "@/components/StatusBadge";
 import { pageMeta } from "@/lib/page-meta";
 import { enableCabineAlerts } from "@/lib/firebase";
+import { WalletCard } from "@/components/WalletCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => pageMeta("Tableau de bord — Cabine Online", "Vue d'ensemble de ton compte, de tes forfaits et de tes opérations."),
