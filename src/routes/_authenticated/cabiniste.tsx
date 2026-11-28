@@ -246,3 +246,42 @@ function Cabiniste() {
             <Clock3 className="size-5 text-primary" /> Commandes disponibles ({freeOrders.length})
           </h2>
         </div>
+                {freeOrders.length === 0 ? (
+          <p className="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
+            Aucune commande en attente pour le moment.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {freeOrders.map((order) => (
+              <CabinisteOrderCard
+                key={order.id}
+                order={order}
+                now={now}
+                currentUserId={data.userId}
+                canClaim={data.state.available && data.state.stock >= order.amount}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="flex items-center gap-2 text-lg font-bold">
+          <CircleCheck className="size-5 text-success" /> Livrées aujourd’hui ({data.history.length})
+        </h2>
+        {data.history.length === 0 ? (
+          <p className="rounded-2xl border bg-card p-5 text-center text-sm text-muted-foreground">
+            Aucune livraison effectuée aujourd’hui.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {data.history.map((order) => (
+              <CabinisteOrderCard key={order.id} order={order} now={now} currentUserId={data.userId} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
