@@ -206,7 +206,12 @@ export const reportCabinisteIssue = createServerFn({ method: "POST" })
 export const listAllCabinistes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertCabiniste(context.supabase, context.userId);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé au gérant.");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data, error } = await supabaseAdmin
@@ -223,7 +228,12 @@ export const approveCabiniste = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ targetUserId: z.string().uuid(), approve: z.boolean() }))
   .handler(async ({ context, data }) => {
-    await assertCabiniste(context.supabase, context.userId);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé au gérant.");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { error } = await supabaseAdmin
@@ -240,7 +250,12 @@ export const topUpCabinisteStock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(z.object({ targetUserId: z.string().uuid(), amount: z.number().min(1000) }))
   .handler(async ({ context, data }) => {
-    await assertCabiniste(context.supabase, context.userId);
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Accès réservé au gérant.");
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: current, error: readErr } = await supabaseAdmin
