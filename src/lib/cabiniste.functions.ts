@@ -202,3 +202,61 @@ export const reportCabinisteIssue = createServerFn({ method: "POST" })
     if (result.error) throw new Error(result.error.message);
     return { ok: true };
   });
+// 8. Lister tous les cabinistes (pour le Gérant)
+export const listAllCabinistes = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertCabiniste(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data, error } = await supabaseAdmin
+      .from("cabinistes")
+      .select("user_id, full_name, phone, available, stock, bonuses, is_approved, updated_at")
+      .order("updated_at", { ascending: false });
+
+    if (error) throw new Error("Impossible de charger la liste des cabinistes.");
+    return data ?? [];
+  });
+
+// 9. Valider ou suspendre un cabiniste inscrit (Gérant)
+export const approveCabiniste = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ targetUserId: z.string().uuid(), approve: z.boolean() }))
+  .handler(async ({ context, data }) => {
+    await assertCabiniste(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin
+      .from("cabinistes")
+      .update({ is_approved: data.approve, updated_at: new Date().toISOString() })
+      .eq("user_id", data.targetUserId);
+
+    if (error) throw new Error("Modification du statut impossible.");
+    return { ok: true };
+  });
+
+// 10. Recharger le stock d'un cabiniste (Gérant)
+export const topUpCabinisteStock = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ targetUserId: z.string().uuid(), amount: z.number().min(1000) }))
+  .handler(async ({ context, data }) => {
+    await assertCabiniste(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: current, error: readErr } = await supabaseAdmin
+      .from("cabinistes")
+      .select("stock")
+      .eq("user_id", data.targetUserId)
+      .single();
+
+    if (readErr || !current) throw new Error("Cabiniste introuvable.");
+
+    const { error } = await supabaseAdmin
+      .from("cabinistes")
+      .update({ stock: current.stock + data.amount, updated_at: new Date().toISOString() })
+      .eq("user_id", data.targetUserId);
+
+    if (error) throw new Error("Recharge du stock impossible.");
+    return { ok: true };
+  });
+
