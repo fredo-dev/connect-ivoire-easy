@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Wifi, PhoneCall, Smartphone, ShieldCheck } from "lucide-react";
+import { Wifi, PhoneCall, Smartphone, ShieldCheck, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -28,7 +28,16 @@ function Landing() {
     <div className="min-h-screen bg-hero">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         <span className="font-display text-xl font-bold">Cabine<span className="text-primary">Online</span></span>
-        <Button asChild variant="ghost"><Link to="/auth">Connexion</Link></Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/inscription-cabiniste">
+              <Store className="mr-1.5 size-4" /> Devenir cabiniste
+            </Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link to="/auth">Connexion</Link>
+          </Button>
+        </div>
       </header>
       <main className="mx-auto max-w-6xl px-5 pb-20 pt-10 md:pt-20">
         <p className="mb-4 inline-flex rounded-full border px-3 py-1 text-xs text-muted-foreground">🇨🇮 Ta cabine, partout, 24h/24</p>
@@ -39,7 +48,14 @@ function Landing() {
           Choisis ton forfait internet ou appels, paie avec Orange Money, MTN, Moov ou Wave. Frais de service : 1,5 % seulement.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild variant="hero" size="lg"><Link to="/auth">Commencer</Link></Button>
+          <Button asChild variant="hero" size="lg">
+            <Link to="/auth">Commencer</Link>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/inscription-cabiniste">
+              <Store className="mr-2 size-5" /> Inscription Cabiniste
+            </Link>
+          </Button>
         </div>
         <div className="mt-10 flex flex-wrap gap-2">
           {ops.map((o) => (
