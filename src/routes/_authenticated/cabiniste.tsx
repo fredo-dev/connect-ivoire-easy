@@ -178,6 +178,47 @@ function Cabiniste() {
           </span>
         </button>
       </header>
+                  {new Date(data.state.updated_at ?? Date.now()).toLocaleString("fr-FR")}
+          </p>
+        </div>
+      </section>
+
+      <button
+        type="button"
+        onClick={handleAlerts}
+        className="flex w-full items-center justify-between rounded-2xl border bg-card p-4 text-left"
+      >
+        <div className="flex items-center gap-3">
+          <Bell className="h-5 w-5 text-primary" />
+          <div>
+            <p className="font-medium">{alertsEnabled ? "Alertes actives" : "Activer les alertes"}</p>
+            <p className="text-xs text-muted-foreground">Bip sonore et notification à chaque nouvelle commande</p>
+          </div>
+        </div>
+        <span className="text-sm font-medium text-primary">{alertsEnabled ? "Actif" : "Activer"}</span>
+      </button>
+
+      {myOrders.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
+              <Zap className="size-5" /> Mes commandes à livrer ({myOrders.length})
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {myOrders.map((order) => (
+              <CabinisteOrderCard
+                key={order.id}
+                order={order}
+                now={now}
+                currentUserId={data.userId}
+                canClaim={data.state.available && data.state.stock >= order.amount}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
 
       {!data.state.available && (
         <p role="status" className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
