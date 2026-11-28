@@ -1,12 +1,12 @@
 // src/components/WalletCard.tsx
 import { useEffect, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Eye, EyeOff, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { formatXOF } from "@/lib/fees";
 import { createDeposit } from "@/lib/deposits.functions";
 
 const MIN_DEPOSIT = 500;
-const QUICK_AMOUNTS = [1000, 5000, 10000, 25000];
+const QUICK_AMOUNTS =;
 const OPERATORS = [
   { id: "orange", label: "Orange Money" },
   { id: "mtn", label: "MTN MoMo" },
@@ -22,6 +22,7 @@ type Props = {
 };
 
 export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Props) {
+  const [showBalance, setShowBalance] = useState(false);
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [operator, setOperator] = useState(defaultOperator ?? "orange");
@@ -76,8 +77,20 @@ export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Pr
       <div className="rounded-3xl border bg-card p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">Solde disponible</p>
-            <p className="mt-1 font-display text-3xl font-bold">{formatXOF(balance)}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">Solde disponible</p>
+              <button
+                type="button"
+                onClick={() => setShowBalance((prev) => !prev)}
+                aria-label={showBalance ? "Masquer le solde" : "Afficher le solde"}
+                className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="mt-1 font-display text-3xl font-bold tracking-wide">
+              {showBalance ? formatXOF(balance) : "•••••• FCFA"}
+            </p>
           </div>
           <button
             type="button"
@@ -92,7 +105,9 @@ export function WalletCard({ balance, limit, defaultPhone, defaultOperator }: Pr
         <div className="mt-5">
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>Plafond du compte</span>
-            <span>{formatXOF(balance)} / {formatXOF(limit)}</span>
+            <span>
+              {showBalance ? `${formatXOF(balance)} / ${formatXOF(limit)}` : `•••••• / ${formatXOF(limit)}`}
+            </span>
           </div>
           <div
             className="mt-2 h-2 overflow-hidden rounded-full bg-muted"
