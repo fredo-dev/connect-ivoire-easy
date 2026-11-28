@@ -39,7 +39,7 @@ function playAlertSound() {
     osc.start();
     osc.stop(ctx.currentTime + 0.45);
   } catch {
-    // Audio bloqué par le navigateur
+    // Audio bloqué
   }
 }
 
@@ -90,8 +90,7 @@ function Cabiniste() {
       void supabase.removeChannel(channel);
     };
   }, [data, qc]);
-
-  async function toggleAvailability() {
+    async function toggleAvailability() {
     if (!data) return;
     setSwitching(true);
     try {
@@ -136,7 +135,6 @@ function Cabiniste() {
 
   const lowStock = isLowStock(data.state.stock);
   const stockPercent = Math.max(0, Math.min(100, (data.state.stock / INITIAL_CABINISTE_STOCK) * 100));
-
   const myOrders = data.queue.filter((o) => o.claimed_by === data.userId);
   const freeOrders = data.queue.filter((o) => o.claimed_by === null);
 
@@ -178,49 +176,8 @@ function Cabiniste() {
           </span>
         </button>
       </header>
-                  {new Date(data.state.updated_at ?? Date.now()).toLocaleString("fr-FR")}
-          </p>
-        </div>
-      </section>
 
-      <button
-        type="button"
-        onClick={handleAlerts}
-        className="flex w-full items-center justify-between rounded-2xl border bg-card p-4 text-left"
-      >
-        <div className="flex items-center gap-3">
-          <Bell className="h-5 w-5 text-primary" />
-          <div>
-            <p className="font-medium">{alertsEnabled ? "Alertes actives" : "Activer les alertes"}</p>
-            <p className="text-xs text-muted-foreground">Bip sonore et notification à chaque nouvelle commande</p>
-          </div>
-        </div>
-        <span className="text-sm font-medium text-primary">{alertsEnabled ? "Actif" : "Activer"}</span>
-      </button>
-
-      {myOrders.length > 0 && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
-              <Zap className="size-5" /> Mes commandes à livrer ({myOrders.length})
-            </h2>
-          </div>
-          <div className="space-y-3">
-            {myOrders.map((order) => (
-              <CabinisteOrderCard
-                key={order.id}
-                order={order}
-                now={now}
-                currentUserId={data.userId}
-                canClaim={data.state.available && data.state.stock >= order.amount}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-
-      {!data.state.available && (
+            {!data.state.available && (
         <p role="status" className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
           Votre statut est hors ligne : passez en ligne pour attraper de nouvelles commandes.
         </p>
@@ -262,11 +219,9 @@ function Cabiniste() {
 
       {myOrders.length > 0 && (
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
-              <Zap className="size-5" /> Mes commandes à livrer ({myOrders.length})
-            </h2>
-          </div>
+          <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
+            <Zap className="size-5" /> Mes commandes à livrer ({myOrders.length})
+          </h2>
           <div className="space-y-3">
             {myOrders.map((order) => (
               <CabinisteOrderCard
@@ -282,12 +237,10 @@ function Cabiniste() {
       )}
 
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-bold">
-            <Clock3 className="size-5 text-primary" /> Commandes disponibles ({freeOrders.length})
-          </h2>
-        </div>
-                {freeOrders.length === 0 ? (
+        <h2 className="flex items-center gap-2 text-lg font-bold">
+          <Clock3 className="size-5 text-primary" /> Commandes disponibles ({freeOrders.length})
+        </h2>
+        {freeOrders.length === 0 ? (
           <p className="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">
             Aucune commande en attente pour le moment.
           </p>
