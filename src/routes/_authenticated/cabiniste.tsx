@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { CircleCheck, Clock3, Package, WalletCards, Bell } from "lucide-react";
+import { CircleCheck, Clock3, Package, WalletCards, Bell, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { CabinisteOrderCard } from "@/components/CabinisteOrderCard";
@@ -55,17 +55,18 @@ function Cabiniste() {
     if (!data) return;
     if (prevQueueCount.current !== null && data.queue.length > prevQueueCount.current) {
       if (alertsEnabled) playAlertSound();
-      toast.info("Nouvelle commande reçue !");
+      toast.info("Nouvelle commande disponible ! Soyez le plus rapide !");
     }
     prevQueueCount.current = data.queue.length;
   }, [data, alertsEnabled]);
 
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(timer); }, []);
+
   useEffect(() => {
     if (!data) return;
     const channel = supabase.channel(`cabiniste-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "transactions" }, () => { void qc.invalidateQueries({ queryKey: ["cabiniste"] }); })
-      .on("postgres_changes", { event: "*", schema: "public", table: "cabiniste_state" }, () => { void qc.invalidateQueries({ queryKey: ["cabiniste"] }); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "cabinistes" }, () => { void qc.invalidateQueries({ queryKey: ["cabiniste"] }); })
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [data, qc]);
@@ -101,17 +102,21 @@ function Cabiniste() {
   const lowStock = isLowStock(data.state.stock);
   const stockPercent = Math.max(0, Math.min(100, data.state.stock / INITIAL_CABINISTE_STOCK * 100));
 
+  // Séparation : Mes commandes attrapées VS Commandes libres à prendre au plus vite
+  const myOrders = data.queue.filter((o) => o.claimed_by === data.userId);
+  const freeOrders = data.queue.filter((o) => o.claimed_by === null);
+
   return (
     <div className="space-y-7">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div><p className="text-sm text-primary">Opérateur partenaire</p><h1 className="mt-1 text-2xl font-bold md:text-3xl">Espace Cabiniste</h1></div>
         <button type="button" role="switch" aria-checked={data.state.available} disabled={switching} onClick={toggleAvailability} className={`flex min-h-14 items-center justify-between gap-4 rounded-2xl border p-3 ${data.state.available ? "border-success/40 bg-success/10" : "border-muted-foreground/20 bg-card"}`}>
-          <div className="text-left"><span className={`block text-sm font-bold ${data.state.available ? "text-success" : "text-muted-foreground"}`}>{data.state.available ? "En ligne" : "Hors ligne"}</span><span className="block text-xs text-muted-foreground">{data.state.available ? "Les paiements sont autorisés" : "Le service est fermé"}</span></div>
+          <div className="text-left"><span className={`block text-sm font-bold ${data.state.available ? "text-success" : "text-muted-foreground"}`}>{data.state.available ? "En ligne" : "Hors ligne"}</span><span className="block text-xs text-muted-foreground">{data.state.available ? "Prêt à recevoir des commandes" : "Vous êtes en pause"}</span></div>
           <span className={`relative h-8 w-14 rounded-full transition-colors ${data.state.available ? "bg-success" : "bg-muted-foreground/40"}`}><span className={`absolute top-1 size-6 rounded-full bg-white transition-transform ${data.state.available ? "translate-x-6" : "translate-x-1"}`} /></span>
         </button>
       </header>
 
-      {!data.state.available && <p role="status" className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning">Service temporairement fermé : les nouveaux paiements sont bloqués.</p>}
+      {!data.state.available && <p role="status" className="rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm text-warning">Votre statut est hors ligne : passez en ligne pour attraper de nouvelles commandes.</p>}
 
       <section className="grid gap-3 sm:grid-cols-2" aria-label="Compteurs financiers">
         <div className={`rounded-2xl border bg-card p-5 ${lowStock ? "border-destructive/60" : ""}`}>
@@ -139,25 +144,38 @@ function Cabiniste() {
         <span className="text-sm font-medium text-primary">{alertsEnabled ? "Actif" : "Activer"}</span>
       </button>
 
+      {/* 1. Mes commandes déjà verrouillées à livrer */}
+      {myOrders.length > 0 && (
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-lg font-bold text-primary">
+              <Zap className="size-5" /> Mes commandes à livrer ({myOrders.length})
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {myOrders.map((order) => (
+              <CabinisteOrderCard key={order.id} order={order} now={now} currentUserId={data.userId} canClaim={data.state.available && data.state.stock >= order.amount} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 2. File d'attente commune (le plus rapide gagne) */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between"><h2 className="flex items-center gap-2 text-lg font-semibold"><Clock3 className="size-5 text-primary" />Commandes en attente</h2><span className="rounded-full border bg-card px-2 py-1 text-xs text-muted-foreground">{data.queue.length}</span></div>
-        {data.queue.length ? <div className="grid gap-4 lg:grid-cols-2">{data.queue.map((order) => <CabinisteOrderCard key={order.id} order={order} now={now} />)}</div> : <div className="rounded-2xl border border-dashed bg-card p-6 text-sm text-muted-foreground text-center">Aucune commande en attente pour le moment.</div>}
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-lg font-bold">
+            <Clock3 className="size-5 text-primary" /> Commandes disponibles ({freeOrders.length})
+          </h2>
+        </div>
+        {freeOrders.length === 0 ? (
+          <p className="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">Aucune commande en attente pour le moment.</p>
+        ) : (
+          <div className="space-y-3">
+            {freeOrders.map((order) => (
+              <CabinisteOrderCard key={order.id} order={order} now={now} currentUserId={data.userId} canClaim={data.state.available && data.state.stock >= order.amount} />
+            ))}
+          </div>
+        )}
       </section>
 
-      <section className="space-y-3 border-t pt-6">
-        <h2 className="text-lg font-semibold">Livraisons du jour</h2>
-        <div className="divide-y rounded-2xl border bg-card">
-          {data.history.length ? data.history.map((order) => (
-            <div key={order.id} className="flex items-center justify-between gap-3 p-4 text-sm">
-              <div>
-                <p className="font-medium">{order.label}</p>
-                <p className="text-xs text-muted-foreground">{order.phone} · {new Date(order.delivered_at ?? order.created_at).toLocaleString("fr-FR")}</p>
-              </div>
-              <div className="text-right"><p>{formatXOF(order.amount)}</p><span className="inline-flex items-center gap-1 text-success"><CircleCheck className="size-4" />Validé</span></div>
-            </div>
-          )) : <p className="p-4 text-sm text-muted-foreground">Aucune livraison aujourd’hui.</p>}
-        </div>
-      </section>
-    </div>
-  );
-}
+      {/* 3. Historique livré aujourd'hui */}
